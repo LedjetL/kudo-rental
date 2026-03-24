@@ -94,7 +94,7 @@ export default function Hero() {
           transform: 'scale(1.05)',
           opacity: loaded ? 1 : 0,
           transition: 'opacity 1.2s ease',
-          filter: 'brightness(0.35)',
+          filter: 'brightness(0.55)',
         }} />
       )}
 
