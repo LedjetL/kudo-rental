@@ -90,7 +90,7 @@ export default function Hero() {
           inset: 0,
           backgroundImage: 'url(/hero.jpg)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center 60%',
+          backgroundPosition: 'center 85%',
           transform: 'scale(1.05)',
           opacity: loaded ? 1 : 0,
           transition: 'opacity 1.2s ease',

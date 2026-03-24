@@ -154,7 +154,7 @@ function CarCard({ car, index, inView, onBook }: {
     >
       {/* Image */}
       <div style={{
-        position: 'relative', height: '260px',
+        position: 'relative', height: '300px',
         background: 'linear-gradient(135deg, #1a1a1a, #222)',
         overflow: 'hidden',
       }}>
@@ -162,7 +162,7 @@ function CarCard({ car, index, inView, onBook }: {
           src={car.image}
           alt={`${car.name} ${car.year}`}
           style={{
-            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center',
+            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 70%',
             transition: 'transform 0.4s ease',
             transform: hovered && !isUnavailable ? 'scale(1.04)' : 'scale(1)',
             filter: isUnavailable ? 'grayscale(60%) brightness(0.6)' : 'none',
