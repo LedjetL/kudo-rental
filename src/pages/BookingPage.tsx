@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
 import { cars, extras } from '../data/cars'
+import FloatingWhatsApp from '../components/FloatingWhatsApp'
 
 // ── EmailJS config — replace with your real values from emailjs.com ──
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
@@ -610,6 +611,7 @@ export default function BookingPage() {
           </div>
         )}
       </div>
+      <FloatingWhatsApp />
     </div>
   )
 }

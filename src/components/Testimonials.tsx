@@ -32,7 +32,7 @@ const reviews = [
 ]
 
 function useInView(threshold = 0.1) {
-  const ref = useRef<HTMLElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -51,13 +51,14 @@ export default function Testimonials() {
   return (
     <section
       id="reviews"
-      ref={ref as React.RefObject<HTMLElement>}
       style={{
+        position: 'relative',
         background: '#0a0a0a',
         padding: 'clamp(60px, 10vw, 120px) clamp(20px, 4vw, 40px)',
         borderTop: '1px solid #1a1a1a',
       }}
     >
+      <div ref={ref} style={{ position: 'absolute', top: '30%', pointerEvents: 'none' }} />
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{
