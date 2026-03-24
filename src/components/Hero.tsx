@@ -33,7 +33,7 @@ export default function Hero() {
         pointerEvents: 'none',
       }} />
 
-      <div style={{ position: 'relative', textAlign: 'center', padding: '0 20px', maxWidth: '900px' }}>
+      <div style={{ position: 'relative', textAlign: 'center', padding: '80px 24px 0', maxWidth: '900px', width: '100%' }}>
         {/* Eyebrow */}
         <p style={{
           fontFamily: "'Montserrat', sans-serif",
@@ -126,11 +126,12 @@ export default function Hero() {
         {/* Stats bar */}
         <div style={{
           display: 'flex',
-          gap: '60px',
+          gap: 'clamp(24px, 6vw, 60px)',
           justifyContent: 'center',
-          marginTop: '80px',
+          marginTop: '60px',
           paddingTop: '40px',
           borderTop: '1px solid #2a2a2a',
+          flexWrap: 'wrap',
         }}>
           {[
             { value: '4', label: 'Vehicles' },

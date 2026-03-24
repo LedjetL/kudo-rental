@@ -10,6 +10,7 @@ export interface Car {
   features: string[]
   image: string
   available: boolean
+  bookedUntil?: string // ISO date string e.g. '2026-04-10'
 }
 
 export const cars: Car[] = [
@@ -22,7 +23,7 @@ export const cars: Car[] = [
     seats: 5,
     transmission: 'Manual',
     fuel: 'Diesel',
-    features: ['Air Conditioning', 'Bluetooth', 'USB Charging', 'Cruise Control'],
+    features: ['Air Conditioning', 'Panoramic Roof', 'Bluetooth', 'USB Charging', 'Cruise Control'],
     image: '/cars/jetta-brown.jpg',
     available: true,
   },
@@ -35,14 +36,14 @@ export const cars: Car[] = [
     seats: 5,
     transmission: 'Manual',
     fuel: 'Diesel',
-    features: ['Air Conditioning', 'Bluetooth', 'USB Charging', 'Cruise Control'],
+    features: ['Air Conditioning', 'Panoramic Roof', 'Bluetooth', 'USB Charging', 'Cruise Control'],
     image: '/cars/jetta-black.jpg',
     available: true,
   },
   {
     id: 'audi-a7',
     name: 'Audi A7',
-    year: 2012,
+    year: 2013,
     category: 'Premium',
     pricePerDay: 70,
     seats: 5,
@@ -61,7 +62,7 @@ export const cars: Car[] = [
     seats: 7,
     transmission: 'Automatic',
     fuel: 'Diesel',
-    features: ['7 Seats', 'All-Wheel Drive', 'Air Conditioning', 'Navigation', 'Roof Rails'],
+    features: ['7 Seats', 'All-Wheel Drive', 'Air Conditioning', 'Panoramic Roof', 'Navigation', 'Roof Rails'],
     image: '/cars/volvo-xc90.jpg',
     available: true,
   },

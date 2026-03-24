@@ -154,7 +154,7 @@ export default function BookingPage() {
       <div style={{
         background: '#111',
         borderBottom: '1px solid #2a2a2a',
-        padding: '20px 40px',
+        padding: '16px clamp(16px, 4vw, 40px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -239,11 +239,11 @@ export default function BookingPage() {
       )}
 
       {/* Content */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 40px 80px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px) 80px' }}>
 
         {/* Step 1: Dates & Extras */}
         {step === 'dates' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(380px, 100%), 1fr))', gap: '32px', alignItems: 'start' }}>
             <div>
               <SectionTitle>Rental Dates</SectionTitle>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
@@ -340,7 +340,7 @@ export default function BookingPage() {
 
         {/* Step 2: Customer Details */}
         {step === 'details' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(380px, 100%), 1fr))', gap: '32px', alignItems: 'start' }}>
             <div>
               <SectionTitle>Your Information</SectionTitle>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
@@ -428,7 +428,7 @@ export default function BookingPage() {
 
         {/* Step 3: Confirm */}
         {step === 'confirm' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(380px, 100%), 1fr))', gap: '32px', alignItems: 'start' }}>
             <div>
               <SectionTitle>Review Your Booking</SectionTitle>
 

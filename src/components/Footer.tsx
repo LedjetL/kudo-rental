@@ -11,8 +11,8 @@ export default function Footer() {
         {/* Top section */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '60px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'clamp(32px, 5vw, 60px)',
           marginBottom: '60px',
         }}>
           {/* Brand */}
