@@ -23,7 +23,7 @@ export const cars: Car[] = [
     transmission: 'Manual',
     fuel: 'Diesel',
     features: ['Air Conditioning', 'Bluetooth', 'USB Charging', 'Cruise Control'],
-    image: '/cars/jetta.jpg',
+    image: '/cars/jetta-brown.jpg',
     available: true,
   },
   {
@@ -36,7 +36,7 @@ export const cars: Car[] = [
     transmission: 'Manual',
     fuel: 'Diesel',
     features: ['Air Conditioning', 'Bluetooth', 'USB Charging', 'Cruise Control'],
-    image: '/cars/jetta.jpg',
+    image: '/cars/jetta-black.jpg',
     available: true,
   },
   {
