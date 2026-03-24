@@ -1,6 +1,14 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import emailjs from '@emailjs/browser'
 import { cars, extras } from '../data/cars'
+
+// ── EmailJS config — replace with your real values from emailjs.com ──
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
+const EMAILJS_TEMPLATE_OWNER = 'YOUR_OWNER_TEMPLATE_ID'   // email sent to you
+const EMAILJS_TEMPLATE_CUSTOMER = 'YOUR_CUSTOMER_TEMPLATE_ID' // email sent to customer
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'
+const OWNER_EMAIL = 'YOUR_EMAIL@gmail.com' // your inbox
 
 type Step = 'dates' | 'details' | 'confirm' | 'done'
 
@@ -51,6 +59,8 @@ export default function BookingPage() {
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
 
   const [step, setStep] = useState<Step>('dates')
+  const [isSending, setIsSending] = useState(false)
+  const [sendError, setSendError] = useState('')
   const [bookingRef] = useState(generateRef())
   const [form, setForm] = useState<BookingForm>({
     pickupDate: today,
@@ -94,6 +104,44 @@ export default function BookingPage() {
 
   const update = (field: keyof BookingForm, value: string) => {
     setForm(f => ({ ...f, [field]: value }))
+  }
+
+  const sendEmails = async () => {
+    setIsSending(true)
+    setSendError('')
+    const extrasLabel = form.selectedExtras.length > 0
+      ? form.selectedExtras.map(id => extras.find(e => e.id === id)?.label).join(', ')
+      : 'None'
+
+    const templateVars = {
+      booking_ref: bookingRef,
+      car_name: `${car!.name} ${car!.year}`,
+      pickup_date: formatDate(form.pickupDate),
+      dropoff_date: formatDate(form.dropoffDate),
+      pickup_location: form.pickupLocation,
+      dropoff_location: form.dropoffLocation,
+      duration: `${days} day${days !== 1 ? 's' : ''}`,
+      extras: extrasLabel,
+      total: `€${total}`,
+      customer_name: `${form.firstName} ${form.lastName}`,
+      customer_email: form.email,
+      customer_phone: form.phone,
+      notes: form.notes || 'None',
+      owner_email: OWNER_EMAIL,
+      reply_to: form.email,
+    }
+
+    try {
+      // Email to owner
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_OWNER, templateVars, EMAILJS_PUBLIC_KEY)
+      // Email to customer
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CUSTOMER, templateVars, EMAILJS_PUBLIC_KEY)
+      setStep('done')
+    } catch (err) {
+      setSendError('Failed to send confirmation. Please contact us on WhatsApp.')
+    } finally {
+      setIsSending(false)
+    }
   }
 
   const whatsappMsg = encodeURIComponent(
@@ -427,12 +475,18 @@ export default function BookingPage() {
 
             <PriceSidebar car={car} days={days} form={form} total={total} extrasTotal={extrasTotal}>
               <button
-                onClick={() => setStep('done')}
-                style={primaryBtnStyle}
+                onClick={sendEmails}
+                disabled={isSending}
+                style={{ ...primaryBtnStyle, opacity: isSending ? 0.7 : 1 }}
               >
-                Confirm Booking
+                {isSending ? 'Sending...' : 'Confirm Booking'}
               </button>
-              <button onClick={() => setStep('details')} style={secondaryBtnStyle}>
+              {sendError && (
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '12px', color: '#e74c3c', textAlign: 'center' }}>
+                  {sendError}
+                </p>
+              )}
+              <button onClick={() => setStep('details')} disabled={isSending} style={secondaryBtnStyle}>
                 ← Back
               </button>
             </PriceSidebar>
