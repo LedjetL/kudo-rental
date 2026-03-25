@@ -44,7 +44,8 @@ function formatDate(dateStr: string) {
 function getDays(from: string, to: string) {
   if (!from || !to) return 0
   const diff = new Date(to).getTime() - new Date(from).getTime()
-  return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+  if (diff <= 0) return 0
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
 function generateRef() {
@@ -64,17 +65,20 @@ export default function BookingPage() {
   const [sendError, setSendError] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof BookingForm, string>>>({})
   const [bookingRef] = useState(generateRef())
-  const [form, setForm] = useState<BookingForm>({
-    pickupDate: today,
-    dropoffDate: tomorrow,
-    pickupLocation: LOCATIONS[0],
-    dropoffLocation: LOCATIONS[0],
-    selectedExtras: [],
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    notes: '',
+  const [form, setForm] = useState<BookingForm>(() => {
+    const ss = sessionStorage
+    return {
+      pickupDate: ss.getItem('kudo_pickup') || today,
+      dropoffDate: ss.getItem('kudo_dropoff') || tomorrow,
+      pickupLocation: ss.getItem('kudo_location') || LOCATIONS[0],
+      dropoffLocation: ss.getItem('kudo_location') || LOCATIONS[0],
+      selectedExtras: [],
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      notes: '',
+    }
   })
 
   if (!car) {
@@ -309,7 +313,7 @@ export default function BookingPage() {
                   fontSize: '12px',
                   color: '#e74c3c',
                 }}>
-                  Drop-off date must be after pick-up date.
+                  Return date must be at least 1 day after pick-up date.
                 </div>
               )}
 

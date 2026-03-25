@@ -7,10 +7,7 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     document.body.style.overflow = 'hidden'
-    return () => {
-      window.removeEventListener('keydown', handler)
-      document.body.style.overflow = ''
-    }
+    return () => { window.removeEventListener('keydown', handler); document.body.style.overflow = '' }
   }, [onClose])
 
   return (
@@ -20,29 +17,20 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
         position: 'fixed', inset: 0, zIndex: 999,
         background: 'rgba(0,0,0,0.92)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px',
-        backdropFilter: 'blur(8px)',
+        padding: '20px', backdropFilter: 'blur(8px)',
         animation: 'fadeIn 0.2s ease',
       }}
     >
-      <button
-        onClick={onClose}
-        style={{
-          position: 'absolute', top: '20px', right: '24px',
-          background: 'none', border: 'none',
-          color: '#888', fontSize: '28px', cursor: 'pointer',
-          lineHeight: 1,
-        }}
-      >×</button>
+      <button onClick={onClose} style={{
+        position: 'absolute', top: '20px', right: '24px',
+        background: 'none', border: 'none', color: '#888', fontSize: '28px', cursor: 'pointer',
+      }}>×</button>
       <img
-        src={src}
-        alt={alt}
+        src={src} alt={alt}
         onClick={e => e.stopPropagation()}
         style={{
-          maxWidth: '90vw', maxHeight: '85vh',
-          objectFit: 'contain',
-          borderRadius: '4px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+          maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain',
+          borderRadius: '4px', boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
           animation: 'scaleIn 0.25s ease',
         }}
       />
@@ -62,6 +50,23 @@ const CATEGORY_COLORS: Record<string, string> = {
   SUV: '#27ae60',
 }
 
+function formatBookedUntil(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true) }, { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+  return { ref, inView }
+}
+
 function WAIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366">
@@ -70,105 +75,71 @@ function WAIcon() {
   )
 }
 
-function formatBookedUntil(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'long', year: 'numeric'
-  })
-}
-
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true) },
-      { threshold }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [threshold])
-  return { ref, inView }
-}
-
 export default function Fleet() {
   const [activeCategory, setActiveCategory] = useState<Category>('All')
   const navigate = useNavigate()
   const { ref: sectionRef, inView } = useInView()
 
-  const filtered = activeCategory === 'All'
-    ? cars
-    : cars.filter(c => c.category === activeCategory)
+  const filtered = activeCategory === 'All' ? cars : cars.filter(c => c.category === activeCategory)
 
   return (
     <section id="fleet" ref={sectionRef} style={{
-      background: '#0f0f0f',
-      padding: 'clamp(60px, 10vw, 120px) clamp(20px, 4vw, 40px)',
+      background: '#0c0c0c',
+      padding: 'clamp(60px, 10vw, 100px) clamp(20px, 4vw, 40px)',
       borderTop: '1px solid #1a1a1a',
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+
         {/* Section header */}
         <div style={{
-          textAlign: 'center',
-          marginBottom: '48px',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '20px',
+          marginBottom: '40px',
           opacity: inView ? 1 : 0,
-          transform: inView ? 'translateY(0)' : 'translateY(30px)',
+          transform: inView ? 'translateY(0)' : 'translateY(24px)',
           transition: 'opacity 0.7s ease, transform 0.7s ease',
         }}>
-          <p style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: '11px', fontWeight: 500,
-            letterSpacing: '4px', textTransform: 'uppercase',
-            color: '#c0392b', marginBottom: '16px',
-          }}>Our Fleet</p>
-          <h2 style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 'clamp(32px, 5vw, 56px)',
-            fontWeight: 400, color: '#f5f5f5', lineHeight: 1.1, marginBottom: '16px',
-          }}>Choose Your Ride</h2>
-          <p style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: '14px', fontWeight: 300, color: '#888888',
-            maxWidth: '400px', margin: '0 auto',
-          }}>
-            Every vehicle is maintained to the highest standard.
-            Flexible daily rates, transparent pricing.
-          </p>
+          <div>
+            <p style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '11px', fontWeight: 500,
+              letterSpacing: '4px', textTransform: 'uppercase',
+              color: '#c0392b', marginBottom: '10px',
+            }}>Our Fleet</p>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 'clamp(30px, 5vw, 48px)',
+              fontWeight: 400, color: '#f5f5f5', lineHeight: 1.1,
+            }}>Choose Your Vehicle</h2>
+          </div>
+
+          {/* Category filters */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {(['All', 'Sedan', 'Premium', 'SUV'] as Category[]).map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  padding: '7px 18px',
+                  border: `1px solid ${activeCategory === cat ? '#c0392b' : '#2a2a2a'}`,
+                  borderRadius: '2px',
+                  background: activeCategory === cat ? '#c0392b' : 'transparent',
+                  color: activeCategory === cat ? '#f5f5f5' : '#888888',
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '11px', fontWeight: 500,
+                  letterSpacing: '2px', textTransform: 'uppercase',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                }}
+              >{cat}</button>
+            ))}
+          </div>
         </div>
 
-        {/* Category filters */}
-        <div style={{
-          display: 'flex', gap: '8px', justifyContent: 'center',
-          marginBottom: '40px', flexWrap: 'wrap',
-          opacity: inView ? 1 : 0,
-          transition: 'opacity 0.7s ease 0.15s',
-        }}>
-          {(['All', 'Sedan', 'Premium', 'SUV'] as Category[]).map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              style={{
-                padding: '8px 22px',
-                border: `1px solid ${activeCategory === cat ? '#c0392b' : '#2a2a2a'}`,
-                borderRadius: '2px',
-                background: activeCategory === cat ? '#c0392b' : 'transparent',
-                color: activeCategory === cat ? '#f5f5f5' : '#888888',
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: '11px', fontWeight: 500,
-                letterSpacing: '2px', textTransform: 'uppercase',
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Cars grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))',
-          gap: '24px',
-        }}>
+        {/* Cars list */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {filtered.map((car, i) => (
             <CarCard
               key={car.id}
@@ -180,248 +151,304 @@ export default function Fleet() {
           ))}
         </div>
       </div>
+
+      <style>{`
+        .car-card { display: grid; grid-template-columns: 320px 1fr 220px; }
+        .car-card-image { height: 100%; min-height: 240px; }
+        .car-card-divider { border-left: 1px solid #222; }
+        @media (max-width: 900px) {
+          .car-card { grid-template-columns: 260px 1fr; }
+          .car-card-price-panel { display: none !important; }
+          .car-card-details { border-right: none !important; }
+          .car-card-mobile-cta { display: flex !important; }
+        }
+        @media (max-width: 620px) {
+          .car-card { grid-template-columns: 1fr; }
+          .car-card-image { min-height: 220px; height: 220px; }
+        }
+      `}</style>
     </section>
   )
 }
 
 function CarCard({ car, index, inView, onBook }: {
-  car: Car
-  index: number
-  inView: boolean
-  onBook: () => unknown
+  car: Car; index: number; inView: boolean; onBook: () => unknown
 }) {
   const [hovered, setHovered] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const isUnavailable = !car.available || (car.bookedUntil && new Date(car.bookedUntil) > new Date())
+  const catColor = CATEGORY_COLORS[car.category]
+
+  const waMsg = encodeURIComponent(`Hi! I'm interested in the ${car.name} (${car.year}). Is it available?`)
 
   return (
     <div
+      className="car-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         background: '#161616',
-        border: `1px solid ${hovered && !isUnavailable ? '#3a3a3a' : '#2a2a2a'}`,
+        border: `1px solid ${hovered && !isUnavailable ? '#333' : '#222'}`,
         borderRadius: '4px',
         overflow: 'hidden',
-        transition: 'all 0.35s ease',
-        transform: inView
-          ? (hovered && !isUnavailable ? 'translateY(-4px)' : 'translateY(0)')
-          : 'translateY(40px)',
+        transition: 'all 0.3s ease',
+        boxShadow: hovered && !isUnavailable ? '0 8px 32px rgba(0,0,0,0.4)' : 'none',
         opacity: inView ? 1 : 0,
-        boxShadow: hovered && !isUnavailable ? '0 20px 40px rgba(0,0,0,0.4)' : 'none',
-        display: 'flex', flexDirection: 'column',
-        transitionDelay: inView ? `${index * 0.1}s` : '0s',
+        transform: inView ? 'translateY(0)' : 'translateY(32px)',
+        transitionDelay: inView ? `${index * 0.08}s` : '0s',
       }}
     >
       {/* Image */}
-      <div style={{
-        position: 'relative', height: '300px',
+      <div className="car-card-image" style={{
+        position: 'relative',
         background: 'linear-gradient(135deg, #1a1a1a, #222)',
         overflow: 'hidden',
+        flexShrink: 0,
       }}>
         <img
           src={car.image}
           alt={`${car.name} ${car.year}`}
-          onClick={() => setLightboxOpen(true)}
+          onClick={() => !isUnavailable && setLightboxOpen(true)}
           style={{
-            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 70%',
+            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 65%',
             transition: 'transform 0.4s ease',
-            transform: hovered && !isUnavailable ? 'scale(1.04)' : 'scale(1)',
-            filter: isUnavailable ? 'grayscale(60%) brightness(0.6)' : 'none',
-            cursor: 'zoom-in',
+            transform: hovered && !isUnavailable ? 'scale(1.05)' : 'scale(1)',
+            filter: isUnavailable ? 'grayscale(60%) brightness(0.55)' : 'none',
+            cursor: isUnavailable ? 'default' : 'zoom-in',
           }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
-        {/* Expand hint */}
-        {!isUnavailable && hovered && (
-          <div style={{
-            position: 'absolute', bottom: '12px', right: '12px',
-            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
-            borderRadius: '2px', padding: '4px 10px',
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: '10px', color: '#c8c8c8', letterSpacing: '1px',
-            pointerEvents: 'none',
-          }}>
-            Click to expand
-          </div>
-        )}
-        {lightboxOpen && (
-          <ImageLightbox
-            src={car.image}
-            alt={`${car.name} ${car.year}`}
-            onClose={() => setLightboxOpen(false)}
-          />
-        )}
 
         {/* Category badge */}
         <div style={{
           position: 'absolute', top: '14px', left: '14px',
           padding: '4px 10px',
-          background: CATEGORY_COLORS[car.category] + '22',
-          border: `1px solid ${CATEGORY_COLORS[car.category]}66`,
+          background: catColor + '22',
+          border: `1px solid ${catColor}66`,
           borderRadius: '2px',
-          color: CATEGORY_COLORS[car.category],
+          color: catColor,
           fontFamily: "'Montserrat', sans-serif",
-          fontSize: '10px', fontWeight: 600,
-          letterSpacing: '2px', textTransform: 'uppercase',
-        }}>
-          {car.category}
-        </div>
+          fontSize: '9px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase',
+        }}>{car.category}</div>
 
-        {/* Price badge */}
-        <div style={{
-          position: 'absolute', top: '14px', right: '14px',
-          background: 'rgba(10,10,10,0.85)',
-          backdropFilter: 'blur(8px)',
-          border: '1px solid #2a2a2a',
-          borderRadius: '2px', padding: '6px 12px', textAlign: 'center',
-        }}>
-          <div style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '22px', fontWeight: 600, color: '#f5f5f5', lineHeight: 1,
-          }}>€{car.pricePerDay}</div>
-          <div style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: '9px', color: '#888888', letterSpacing: '1px', textTransform: 'uppercase',
-          }}>/ day</div>
-        </div>
+        {lightboxOpen && (
+          <ImageLightbox src={car.image} alt={`${car.name} ${car.year}`} onClose={() => setLightboxOpen(false)} />
+        )}
 
         {/* Unavailable overlay */}
         {isUnavailable && (
           <div style={{
             position: 'absolute', inset: 0,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.5)',
-            gap: '6px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.55)', gap: '6px',
           }}>
             <div style={{
               fontFamily: "'Montserrat', sans-serif",
-              fontSize: '11px', fontWeight: 600,
-              letterSpacing: '3px', textTransform: 'uppercase',
-              color: '#f5f5f5', background: 'rgba(0,0,0,0.7)',
-              padding: '6px 16px', borderRadius: '2px',
+              fontSize: '10px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase',
+              color: '#f5f5f5', background: 'rgba(0,0,0,0.75)', padding: '6px 16px', borderRadius: '2px',
             }}>Currently Booked</div>
             {car.bookedUntil && new Date(car.bookedUntil) > new Date() && (
               <div style={{
                 fontFamily: "'Montserrat', sans-serif",
-                fontSize: '11px', fontWeight: 400,
-                color: '#c8c8c8', background: 'rgba(0,0,0,0.7)',
+                fontSize: '11px', color: '#c8c8c8', background: 'rgba(0,0,0,0.75)',
                 padding: '4px 12px', borderRadius: '2px',
               }}>
-                Available from {formatBookedUntil(car.bookedUntil)}
+                From {formatBookedUntil(car.bookedUntil)}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Card content */}
-      <div style={{ padding: '22px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* Details */}
+      <div className="car-card-details" style={{
+        padding: 'clamp(20px, 3vw, 28px)',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0',
+        borderRight: '1px solid #222',
+      }}>
+        {/* Name + year */}
         <h3 style={{
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: '26px', fontWeight: 600, color: '#f5f5f5', marginBottom: '2px',
+          fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 600,
+          color: '#f5f5f5', lineHeight: 1, marginBottom: '4px',
         }}>{car.name}</h3>
         <p style={{
           fontFamily: "'Montserrat', sans-serif",
-          fontSize: '12px', color: '#888888', letterSpacing: '1px', marginBottom: '18px',
+          fontSize: '12px', color: '#666', letterSpacing: '1px', marginBottom: '18px',
         }}>{car.year}</p>
 
         {/* Specs */}
         <div style={{
-          display: 'flex', gap: '16px', flexWrap: 'wrap',
-          marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #222',
+          display: 'flex', gap: '18px', flexWrap: 'wrap',
+          paddingBottom: '16px', marginBottom: '16px', borderBottom: '1px solid #1e1e1e',
         }}>
           {[
             { icon: '👥', label: `${car.seats} seats` },
             { icon: '⚙️', label: car.transmission },
             { icon: '⛽', label: car.fuel },
           ].map(spec => (
-            <div key={spec.label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <div key={spec.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '12px' }}>{spec.icon}</span>
               <span style={{
                 fontFamily: "'Montserrat', sans-serif",
-                fontSize: '11px', color: '#888888', fontWeight: 300,
+                fontSize: '11px', color: '#888', fontWeight: 300,
               }}>{spec.label}</span>
             </div>
           ))}
         </div>
 
         {/* Features */}
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: '6px',
-          marginBottom: '20px', flex: 1,
-        }}>
-          {car.features.slice(0, 3).map(f => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {car.features.slice(0, 4).map(f => (
             <span key={f} style={{
               padding: '3px 9px',
-              background: '#1e1e1e', border: '1px solid #2a2a2a', borderRadius: '2px',
+              background: '#1c1c1c', border: '1px solid #2a2a2a', borderRadius: '2px',
               fontFamily: "'Montserrat', sans-serif",
-              fontSize: '10px', color: '#888888', fontWeight: 300,
+              fontSize: '10px', color: '#888', fontWeight: 300,
             }}>{f}</span>
           ))}
-          {car.features.length > 3 && (
+          {car.features.length > 4 && (
             <span style={{
               padding: '3px 9px',
-              background: '#1e1e1e', border: '1px solid #2a2a2a', borderRadius: '2px',
+              background: '#1c1c1c', border: '1px solid #222', borderRadius: '2px',
               fontFamily: "'Montserrat', sans-serif",
               fontSize: '10px', color: '#555', fontWeight: 300,
-            }}>+{car.features.length - 3} more</span>
+            }}>+{car.features.length - 4} more</span>
           )}
         </div>
 
-        {/* CTA */}
-        {!isUnavailable ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button onClick={onBook} style={{
-              width: '100%', padding: '13px',
-              background: hovered ? '#c0392b' : 'transparent',
-              border: '1px solid #c0392b', borderRadius: '2px',
-              color: '#f5f5f5',
+        {/* Mobile CTA (hidden on desktop, shown on tablet/mobile when price panel is hidden) */}
+        <div className="car-card-mobile-cta" style={{
+          display: 'none', flexDirection: 'column', gap: '8px', marginTop: '20px',
+          paddingTop: '20px', borderTop: '1px solid #1e1e1e',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '4px' }}>
+            <span style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: '32px', fontWeight: 600, color: '#f5f5f5', lineHeight: 1,
+            }}>€{car.pricePerDay}</span>
+            <span style={{
               fontFamily: "'Montserrat', sans-serif",
-              fontSize: '12px', fontWeight: 600,
-              letterSpacing: '2px', textTransform: 'uppercase',
-              cursor: 'pointer', transition: 'all 0.2s',
-            }}>
+              fontSize: '11px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px',
+            }}>/day</span>
+          </div>
+          {!isUnavailable ? (
+            <>
+              <button onClick={onBook} style={bookBtnStyle}>Book Now</button>
+              <a
+                href={`https://wa.me/355685216312?text=${waMsg}`}
+                target="_blank" rel="noopener noreferrer"
+                style={waBtnStyle}
+              ><WAIcon /> Ask on WhatsApp</a>
+            </>
+          ) : (
+            <div style={unavailableStyle}>
+              {car.bookedUntil && new Date(car.bookedUntil) > new Date()
+                ? `Available ${formatBookedUntil(car.bookedUntil)}`
+                : 'Unavailable'}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Price panel (desktop only) */}
+      <div className="car-card-price-panel" style={{
+        padding: '28px 24px',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        gap: '12px',
+        background: hovered && !isUnavailable ? '#181818' : '#161616',
+        transition: 'background 0.3s',
+        minWidth: 0,
+      }}>
+        {!isUnavailable ? (
+          <>
+            {/* Price */}
+            <div style={{ textAlign: 'center', marginBottom: '4px' }}>
+              <div style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
+                color: '#666', marginBottom: '6px',
+              }}>From</div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '44px', fontWeight: 600, color: '#f5f5f5',
+                lineHeight: 1,
+              }}>€{car.pricePerDay}</div>
+              <div style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
+                color: '#888', marginTop: '4px',
+              }}>per day</div>
+            </div>
+
+            <div style={{ width: '100%', height: '1px', background: '#222', margin: '4px 0' }} />
+
+            {/* Book Now */}
+            <button onClick={onBook} style={{ ...bookBtnStyle, width: '100%' }}>
               Book Now
             </button>
+
+            {/* WhatsApp */}
             <a
-              href={`https://wa.me/355685216312?text=${encodeURIComponent(`Hi! I'm interested in the ${car.name} (${car.year}). Is it available?`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
-                padding: '10px',
-                background: 'transparent',
-                border: '1px solid rgba(37,211,102,0.28)',
-                borderRadius: '2px',
-                color: '#25D366',
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: '11px', fontWeight: 500,
-                letterSpacing: '1px', textTransform: 'uppercase',
-                transition: 'border-color 0.2s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(37,211,102,0.6)')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(37,211,102,0.28)')}
+              href={`https://wa.me/355685216312?text=${waMsg}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ ...waBtnStyle, width: '100%', justifyContent: 'center' }}
             >
               <WAIcon /> Ask on WhatsApp
             </a>
-          </div>
+
+            <p style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '10px', color: '#555', textAlign: 'center',
+              lineHeight: 1.6,
+            }}>No deposit · Pay on pickup</p>
+          </>
         ) : (
-          <div style={{
-            width: '100%', padding: '13px',
-            background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: '2px',
-            color: '#555',
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: '11px', fontWeight: 500,
-            letterSpacing: '2px', textTransform: 'uppercase', textAlign: 'center',
-          }}>
+          <div style={unavailableStyle}>
             {car.bookedUntil && new Date(car.bookedUntil) > new Date()
-              ? `Available ${formatBookedUntil(car.bookedUntil)}`
+              ? `Available\n${formatBookedUntil(car.bookedUntil)}`
               : 'Unavailable'}
           </div>
         )}
       </div>
     </div>
   )
+}
+
+const bookBtnStyle: React.CSSProperties = {
+  padding: '12px 16px',
+  background: '#c0392b',
+  border: '1px solid #c0392b',
+  borderRadius: '2px',
+  color: '#f5f5f5',
+  fontFamily: "'Montserrat', sans-serif",
+  fontSize: '11px', fontWeight: 600,
+  letterSpacing: '2px', textTransform: 'uppercase',
+  cursor: 'pointer', transition: 'background 0.2s',
+  textAlign: 'center' as const,
+}
+
+const waBtnStyle: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: '7px',
+  padding: '10px 16px',
+  background: 'transparent',
+  border: '1px solid rgba(37,211,102,0.3)',
+  borderRadius: '2px',
+  color: '#25D366',
+  fontFamily: "'Montserrat', sans-serif",
+  fontSize: '11px', fontWeight: 500,
+  letterSpacing: '1px', textTransform: 'uppercase',
+  transition: 'border-color 0.2s',
+  textDecoration: 'none',
+}
+
+const unavailableStyle: React.CSSProperties = {
+  width: '100%', padding: '12px',
+  background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: '2px',
+  color: '#555',
+  fontFamily: "'Montserrat', sans-serif",
+  fontSize: '11px', fontWeight: 500,
+  letterSpacing: '2px', textTransform: 'uppercase', textAlign: 'center',
+  whiteSpace: 'pre-line',
 }
