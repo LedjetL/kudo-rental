@@ -139,13 +139,12 @@ export default function BookingPage() {
       ? form.selectedExtras.map(id => extras.find(e => e.id === id)?.label).join(', ')
       : 'None'
 
-    const origin = window.location.origin
     const templateVars = {
       booking_ref: bookingRef,
       car_name: `${car!.name} ${car!.year}`,
       car_category: car!.category,
-      car_image: `${origin}${car!.image}`,
-      logo_url: `${origin}/logo.png`,
+      car_image: `https://kudo-rental.vercel.app${car!.image}`,
+      logo_url: `https://kudo-rental.vercel.app/logo.png`,
       pickup_date: formatDate(form.pickupDate),
       dropoff_date: formatDate(form.dropoffDate),
       pickup_location: form.pickupLocation,
@@ -883,7 +882,7 @@ function WAIcon() {
   )
 }
 
-// ─── Shared styles ─���───────────────────────────────────────────────
+// ─── Shared styles ─���────────────────────────────────────────────���──
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
