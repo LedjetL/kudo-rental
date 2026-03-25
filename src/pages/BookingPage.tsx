@@ -260,7 +260,7 @@ export default function BookingPage() {
       )}
 
       {/* Content */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px) 80px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px) 80px' }} className="booking-content">
 
         {/* Step 1: Dates & Extras */}
         {step === 'dates' && (
@@ -297,6 +297,21 @@ export default function BookingPage() {
                   </select>
                 </Field>
               </div>
+
+              {days < 1 && form.dropoffDate && form.pickupDate && (
+                <div style={{
+                  padding: '12px 16px',
+                  background: 'rgba(192,57,43,0.07)',
+                  border: '1px solid rgba(192,57,43,0.3)',
+                  borderRadius: '4px',
+                  marginBottom: '24px',
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '12px',
+                  color: '#e74c3c',
+                }}>
+                  Drop-off date must be after pick-up date.
+                </div>
+              )}
 
               <SectionTitle>Optional Extras</SectionTitle>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -627,7 +642,78 @@ export default function BookingPage() {
           </div>
         )}
       </div>
+      {/* Mobile sticky price bar */}
+      {step !== 'done' && (
+        <div className="mobile-sticky-bar" style={{
+          position: 'fixed',
+          bottom: 0, left: 0, right: 0,
+          zIndex: 90,
+          background: 'rgba(15,15,15,0.97)',
+          backdropFilter: 'blur(12px)',
+          borderTop: '1px solid #2a2a2a',
+          padding: '12px clamp(16px, 4vw, 24px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}>
+          <div>
+            <div style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
+              color: '#666', marginBottom: '2px',
+            }}>Total</div>
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: '26px', fontWeight: 600, color: '#f5f5f5', lineHeight: 1,
+            }}>€{total}</div>
+            <div style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '10px', color: '#555', marginTop: '2px',
+            }}>
+              {days} day{days !== 1 ? 's' : ''} · pay on pickup
+            </div>
+          </div>
+          <div style={{ flexShrink: 0 }}>
+            {step === 'dates' && (
+              <button
+                onClick={() => { if (days >= 1) setStep('details') }}
+                disabled={days < 1}
+                style={{ ...mobileStickyBtnStyle, opacity: days < 1 ? 0.45 : 1 }}
+              >
+                Continue →
+              </button>
+            )}
+            {step === 'details' && (
+              <button
+                onClick={() => { if (validateDetails()) setStep('confirm') }}
+                style={mobileStickyBtnStyle}
+              >
+                Review →
+              </button>
+            )}
+            {step === 'confirm' && (
+              <button
+                onClick={sendEmails}
+                disabled={isSending}
+                style={{ ...mobileStickyBtnStyle, opacity: isSending ? 0.6 : 1 }}
+              >
+                {isSending ? 'Sending...' : 'Confirm'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <FloatingWhatsApp />
+      <style>{`
+        .mobile-sticky-bar { display: none !important; }
+        .booking-content { padding-bottom: 80px !important; }
+        @media (max-width: 640px) {
+          .mobile-sticky-bar { display: flex !important; }
+          .booking-content { padding-bottom: 100px !important; }
+        }
+      `}</style>
     </div>
   )
 }
@@ -837,6 +923,21 @@ const secondaryBtnStyle: React.CSSProperties = {
   textTransform: 'uppercase',
   cursor: 'pointer',
   transition: 'all 0.2s',
+}
+
+const mobileStickyBtnStyle: React.CSSProperties = {
+  padding: '12px 24px',
+  background: '#c0392b',
+  border: '1px solid #c0392b',
+  borderRadius: '2px',
+  color: '#f5f5f5',
+  fontFamily: "'Montserrat', sans-serif",
+  fontSize: '12px',
+  fontWeight: 600,
+  letterSpacing: '1.5px',
+  textTransform: 'uppercase',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap' as const,
 }
 
 const backBtnStyle: React.CSSProperties = {

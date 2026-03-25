@@ -2,6 +2,7 @@ import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import HowItWorks from '../components/HowItWorks'
 import Fleet from '../components/Fleet'
+import About from '../components/About'
 import Testimonials from '../components/Testimonials'
 import Footer from '../components/Footer'
 import FloatingWhatsApp from '../components/FloatingWhatsApp'
@@ -13,6 +14,7 @@ export default function Home() {
       <Hero />
       <HowItWorks />
       <Fleet />
+      <About />
       <Testimonials />
       <Footer />
       <FloatingWhatsApp />
