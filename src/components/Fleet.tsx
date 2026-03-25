@@ -2,45 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cars, type Car } from '../data/cars'
 
-function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handler)
-    document.body.style.overflow = 'hidden'
-    return () => { window.removeEventListener('keydown', handler); document.body.style.overflow = '' }
-  }, [onClose])
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 999,
-        background: 'rgba(0,0,0,0.92)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px', backdropFilter: 'blur(8px)',
-        animation: 'fadeIn 0.2s ease',
-      }}
-    >
-      <button onClick={onClose} style={{
-        position: 'absolute', top: '20px', right: '24px',
-        background: 'none', border: 'none', color: '#888', fontSize: '28px', cursor: 'pointer',
-      }}>×</button>
-      <img
-        src={src} alt={alt}
-        onClick={e => e.stopPropagation()}
-        style={{
-          maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain',
-          borderRadius: '4px', boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
-          animation: 'scaleIn 0.25s ease',
-        }}
-      />
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes scaleIn { from { transform: scale(0.93); opacity: 0 } to { transform: scale(1); opacity: 1 } }
-      `}</style>
-    </div>
-  )
-}
 
 type Category = 'All' | 'Sedan' | 'Premium' | 'SUV'
 
@@ -175,7 +136,6 @@ function CarCard({ car, index, inView, onBook }: {
   car: Car; index: number; inView: boolean; onBook: () => unknown
 }) {
   const [hovered, setHovered] = useState(false)
-  const [lightboxOpen, setLightboxOpen] = useState(false)
   const isUnavailable = !car.available || (car.bookedUntil && new Date(car.bookedUntil) > new Date())
   const catColor = CATEGORY_COLORS[car.category]
 
@@ -208,13 +168,13 @@ function CarCard({ car, index, inView, onBook }: {
         <img
           src={car.image}
           alt={`${car.name} ${car.year}`}
-          onClick={() => !isUnavailable && setLightboxOpen(true)}
+          onClick={undefined}
           style={{
             width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 65%',
             transition: 'transform 0.4s ease',
             transform: hovered && !isUnavailable ? 'scale(1.05)' : 'scale(1)',
             filter: isUnavailable ? 'grayscale(60%) brightness(0.55)' : 'none',
-            cursor: isUnavailable ? 'default' : 'zoom-in',
+            cursor: 'default',
           }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
@@ -231,9 +191,6 @@ function CarCard({ car, index, inView, onBook }: {
           fontSize: '9px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase',
         }}>{car.category}</div>
 
-        {lightboxOpen && (
-          <ImageLightbox src={car.image} alt={`${car.name} ${car.year}`} onClose={() => setLightboxOpen(false)} />
-        )}
 
         {/* Unavailable overlay */}
         {isUnavailable && (

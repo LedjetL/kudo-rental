@@ -5,11 +5,11 @@ import { cars, extras } from '../data/cars'
 import FloatingWhatsApp from '../components/FloatingWhatsApp'
 
 // ── EmailJS config — replace with your real values from emailjs.com ──
-const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
-const EMAILJS_TEMPLATE_OWNER = 'YOUR_OWNER_TEMPLATE_ID'   // email sent to you
-const EMAILJS_TEMPLATE_CUSTOMER = 'YOUR_CUSTOMER_TEMPLATE_ID' // email sent to customer
-const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'
-const OWNER_EMAIL = 'YOUR_EMAIL@gmail.com' // your inbox
+const EMAILJS_SERVICE_ID  = 'service_tk7c47n'
+const EMAILJS_TEMPLATE_OWNER = 'template_ow05166'
+const EMAILJS_TEMPLATE_CUSTOMER = 'template_pc87v24'
+const EMAILJS_PUBLIC_KEY  = 'D-6fVt3pOrVcecoEz'
+const OWNER_EMAIL = 'araldb14@gmail.com'
 
 type Step = 'dates' | 'details' | 'confirm' | 'done'
 
@@ -134,6 +134,7 @@ export default function BookingPage() {
   const sendEmails = async () => {
     setIsSending(true)
     setSendError('')
+
     const extrasLabel = form.selectedExtras.length > 0
       ? form.selectedExtras.map(id => extras.find(e => e.id === id)?.label).join(', ')
       : 'None'
@@ -157,13 +158,11 @@ export default function BookingPage() {
     }
 
     try {
-      // Email to owner
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_OWNER, templateVars, EMAILJS_PUBLIC_KEY)
-      // Email to customer
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CUSTOMER, templateVars, EMAILJS_PUBLIC_KEY)
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_OWNER, templateVars, { publicKey: EMAILJS_PUBLIC_KEY })
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CUSTOMER, templateVars, { publicKey: EMAILJS_PUBLIC_KEY })
       setStep('done')
     } catch (err) {
-      setSendError('Failed to send confirmation. Please contact us on WhatsApp.')
+      setSendError('Could not send email. Please confirm your booking on WhatsApp below.')
     } finally {
       setIsSending(false)
     }
@@ -366,7 +365,7 @@ export default function BookingPage() {
             </div>
 
             {/* Summary sidebar */}
-            <PriceSidebar car={car} days={days} form={form} total={total} extrasTotal={extrasTotal}>
+            <PriceSidebar car={car} days={days} form={form} total={total}>
               <button
                 onClick={() => setStep('details')}
                 disabled={days < 1}
@@ -448,7 +447,7 @@ export default function BookingPage() {
               </div>
             </div>
 
-            <PriceSidebar car={car} days={days} form={form} total={total} extrasTotal={extrasTotal}>
+            <PriceSidebar car={car} days={days} form={form} total={total}>
               <button
                 onClick={() => { if (validateDetails()) setStep('confirm') }}
                 style={primaryBtnStyle}
@@ -509,7 +508,7 @@ export default function BookingPage() {
               </div>
             </div>
 
-            <PriceSidebar car={car} days={days} form={form} total={total} extrasTotal={extrasTotal}>
+            <PriceSidebar car={car} days={days} form={form} total={total}>
               <button
                 onClick={sendEmails}
                 disabled={isSending}
@@ -786,14 +785,12 @@ function PriceSidebar({
   days,
   form,
   total,
-  extrasTotal,
   children,
 }: {
   car: ReturnType<typeof cars.find> & object
   days: number
   form: BookingForm
   total: number
-  extrasTotal: number
   children: React.ReactNode
 }) {
   return (
@@ -881,7 +878,7 @@ function WAIcon() {
   )
 }
 
-// ─── Shared styles ─────────────────────────────────────────────────
+// ─── Shared styles ─���───────────────────────────────────────────────
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
