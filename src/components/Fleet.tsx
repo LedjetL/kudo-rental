@@ -170,7 +170,7 @@ function CarCard({ car, index, inView, onBook }: {
           alt={`${car.name} ${car.year}`}
           onClick={undefined}
           style={{
-            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center',
+            width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center',
             transition: 'transform 0.4s ease',
             transform: hovered && !isUnavailable ? 'scale(1.05)' : 'scale(1)',
             filter: isUnavailable ? 'grayscale(60%) brightness(0.55)' : 'none',
