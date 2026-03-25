@@ -114,9 +114,14 @@ export default function Footer() {
                 <WhatsAppIcon />
                 Chat on WhatsApp
               </a>
-              <p style={{ fontSize: '13px', fontWeight: 300, color: '#888888' }}>
+              <a
+                href="tel:+355685216312"
+                style={{ fontSize: '13px', fontWeight: 300, color: '#888888', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#f5f5f5')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#888888')}
+              >
                 +355 68 521 6312
-              </p>
+              </a>
             </div>
           </div>
         </div>

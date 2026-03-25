@@ -62,6 +62,7 @@ export default function BookingPage() {
   const [step, setStep] = useState<Step>('dates')
   const [isSending, setIsSending] = useState(false)
   const [sendError, setSendError] = useState('')
+  const [errors, setErrors] = useState<Partial<Record<keyof BookingForm, string>>>({})
   const [bookingRef] = useState(generateRef())
   const [form, setForm] = useState<BookingForm>({
     pickupDate: today,
@@ -105,6 +106,25 @@ export default function BookingPage() {
 
   const update = (field: keyof BookingForm, value: string) => {
     setForm(f => ({ ...f, [field]: value }))
+    if (errors[field]) setErrors(e => ({ ...e, [field]: undefined }))
+  }
+
+  const validateDetails = () => {
+    const newErrors: Partial<Record<keyof BookingForm, string>> = {}
+    if (!form.firstName.trim()) newErrors.firstName = 'Required'
+    if (!form.lastName.trim()) newErrors.lastName = 'Required'
+    if (!form.email.trim()) {
+      newErrors.email = 'Required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = 'Enter a valid email address'
+    }
+    if (!form.phone.trim()) {
+      newErrors.phone = 'Required'
+    } else if (form.phone.replace(/\D/g, '').length < 7) {
+      newErrors.phone = 'Enter a valid phone number'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const sendEmails = async () => {
@@ -345,42 +365,42 @@ export default function BookingPage() {
             <div>
               <SectionTitle>Your Information</SectionTitle>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <Field label="First Name">
+                <Field label="First Name" error={errors.firstName}>
                   <input
                     type="text"
                     value={form.firstName}
                     onChange={e => update('firstName', e.target.value)}
                     placeholder="John"
-                    style={inputStyle}
+                    style={{ ...inputStyle, borderColor: errors.firstName ? '#c0392b' : undefined }}
                   />
                 </Field>
-                <Field label="Last Name">
+                <Field label="Last Name" error={errors.lastName}>
                   <input
                     type="text"
                     value={form.lastName}
                     onChange={e => update('lastName', e.target.value)}
                     placeholder="Doe"
-                    style={inputStyle}
+                    style={{ ...inputStyle, borderColor: errors.lastName ? '#c0392b' : undefined }}
                   />
                 </Field>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <Field label="Email Address">
+                <Field label="Email Address" error={errors.email}>
                   <input
                     type="email"
                     value={form.email}
                     onChange={e => update('email', e.target.value)}
                     placeholder="john@example.com"
-                    style={inputStyle}
+                    style={{ ...inputStyle, borderColor: errors.email ? '#c0392b' : undefined }}
                   />
                 </Field>
-                <Field label="Phone Number">
+                <Field label="Phone Number" error={errors.phone}>
                   <input
                     type="tel"
                     value={form.phone}
                     onChange={e => update('phone', e.target.value)}
                     placeholder="+355 ..."
-                    style={inputStyle}
+                    style={{ ...inputStyle, borderColor: errors.phone ? '#c0392b' : undefined }}
                   />
                 </Field>
               </div>
@@ -411,12 +431,8 @@ export default function BookingPage() {
 
             <PriceSidebar car={car} days={days} form={form} total={total} extrasTotal={extrasTotal}>
               <button
-                onClick={() => setStep('confirm')}
-                disabled={!form.firstName || !form.lastName || !form.email || !form.phone}
-                style={{
-                  ...primaryBtnStyle,
-                  opacity: !form.firstName || !form.lastName || !form.email || !form.phone ? 0.5 : 1,
-                }}
+                onClick={() => { if (validateDetails()) setStep('confirm') }}
+                style={primaryBtnStyle}
               >
                 Review Booking →
               </button>
@@ -634,7 +650,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <label style={{
@@ -643,11 +659,21 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
         fontWeight: 600,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
-        color: '#888',
+        color: error ? '#e74c3c' : '#999',
       }}>
         {label}
       </label>
       {children}
+      {error && (
+        <span style={{
+          fontFamily: "'Montserrat', sans-serif",
+          fontSize: '11px',
+          color: '#e74c3c',
+          marginTop: '2px',
+        }}>
+          {error}
+        </span>
+      )}
     </div>
   )
 }
