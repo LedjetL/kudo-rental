@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cars, type Car } from '../data/cars'
-
+import { useInView } from '../hooks/useInView'
 
 type Category = 'All' | 'Sedan' | 'Premium' | 'SUV'
 
@@ -13,19 +13,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 function formatBookedUntil(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
-function useInView(threshold = 0.1) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true) }, { threshold }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [threshold])
-  return { ref, inView }
 }
 
 function WAIcon() {
@@ -167,8 +154,8 @@ function CarCard({ car, index, inView, onBook }: {
       }}>
         <img
           src={car.image}
-          alt={`${car.name} ${car.year}`}
-          onClick={undefined}
+          alt={`${car.name} ${car.year}${car.color ? ` ${car.color}` : ''}`}
+          loading="lazy"
           style={{
             width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center',
             transition: 'transform 0.4s ease',
@@ -232,7 +219,9 @@ function CarCard({ car, index, inView, onBook }: {
         <p style={{
           fontFamily: "'Montserrat', sans-serif",
           fontSize: '12px', color: '#666', letterSpacing: '1px', marginBottom: '18px',
-        }}>{car.year}</p>
+        }}>
+          {car.year}{car.color ? ` · ${car.color}` : ''}
+        </p>
 
         {/* Specs */}
         <div style={{

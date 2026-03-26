@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
-import { cars, extras } from '../data/cars'
+import { cars, extras, type Car } from '../data/cars'
 import FloatingWhatsApp from '../components/FloatingWhatsApp'
 
 // ── EmailJS config — replace with your real values from emailjs.com ──
@@ -131,6 +131,12 @@ export default function BookingPage() {
     return Object.keys(newErrors).length === 0
   }
 
+  const whatsappMsg = encodeURIComponent(
+    `Hello! I just booked a ${car.name} ${car.year} via your website.\n\nRef: ${bookingRef}\nPickup: ${formatDate(form.pickupDate)} from ${form.pickupLocation}\nDrop-off: ${formatDate(form.dropoffDate)} at ${form.dropoffLocation}\nDuration: ${days} day${days !== 1 ? 's' : ''}\nTotal: €${total}\n\nName: ${form.firstName} ${form.lastName}\nEmail: ${form.email}\nPhone: ${form.phone}`
+  )
+
+  const whatsappUrl = `https://wa.me/355685216312?text=${whatsappMsg}`
+
   const sendEmails = async () => {
     setIsSending(true)
     setSendError('')
@@ -159,6 +165,7 @@ export default function BookingPage() {
       owner_email: OWNER_EMAIL,
       reply_to: form.email,
       year: new Date().getFullYear().toString(),
+      whatsapp_url: whatsappUrl,
     }
 
     try {
@@ -171,10 +178,6 @@ export default function BookingPage() {
       setIsSending(false)
     }
   }
-
-  const whatsappMsg = encodeURIComponent(
-    `Hello! I just booked a ${car.name} ${car.year} via your website.\n\nRef: ${bookingRef}\nPickup: ${formatDate(form.pickupDate)} from ${form.pickupLocation}\nDrop-off: ${formatDate(form.dropoffDate)} at ${form.dropoffLocation}\nDuration: ${days} day${days !== 1 ? 's' : ''}\nTotal: €${total}\n\nName: ${form.firstName} ${form.lastName}\nEmail: ${form.email}\nPhone: ${form.phone}`
-  )
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', paddingTop: '72px' }}>
@@ -195,7 +198,7 @@ export default function BookingPage() {
           fontSize: '20px',
           color: '#f5f5f5',
         }}>
-          Booking — {car.name} {car.year}
+          Booking — {car.name} {car.year}{car.color ? ` · ${car.color}` : ''}
         </div>
         <div style={{ width: '60px' }} />
       </div>
@@ -618,7 +621,7 @@ export default function BookingPage() {
               Send your booking reference on WhatsApp to confirm:
             </p>
             <a
-              href={`https://wa.me/355685216312?text=${whatsappMsg}`}
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -791,7 +794,7 @@ function PriceSidebar({
   total,
   children,
 }: {
-  car: ReturnType<typeof cars.find> & object
+  car: Car
   days: number
   form: BookingForm
   total: number

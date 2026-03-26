@@ -1,4 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
+import { useInView } from '../hooks/useInView'
+import { useCountUp } from '../hooks/useCountUp'
 
 const LOCATIONS = [
   'Tirana Airport (TIA)',
@@ -25,17 +27,9 @@ function useCountUp(target: number, inView: boolean, duration = 1800) {
 }
 
 function StatCounter({ value, prefix = '', suffix = '', label }: {
-  value: number; prefix?: string; suffix?: string; label: string; inView: boolean
+  value: number; prefix?: string; suffix?: string; label: string; inView?: boolean
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true) }, { threshold: 0.5 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
+  const { ref, inView } = useInView(0.5)
   const count = useCountUp(value, inView)
   return (
     <div ref={ref} style={{ textAlign: 'center' }}>

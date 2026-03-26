@@ -2,6 +2,7 @@ export interface Car {
   id: string
   name: string
   year: number
+  color?: string
   category: 'Sedan' | 'Premium' | 'SUV'
   pricePerDay: number
   seats: number
@@ -18,6 +19,7 @@ export const cars: Car[] = [
     id: 'jetta-1',
     name: 'VW Jetta',
     year: 2013,
+    color: 'Brown',
     category: 'Sedan',
     pricePerDay: 35,
     seats: 5,
@@ -31,6 +33,7 @@ export const cars: Car[] = [
     id: 'jetta-2',
     name: 'VW Jetta',
     year: 2013,
+    color: 'Black',
     category: 'Sedan',
     pricePerDay: 35,
     seats: 5,
