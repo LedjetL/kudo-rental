@@ -1,1 +1,6 @@
-{}
+{
+  "jetta-1": {
+    "available": false,
+    "bookedUntil": ""
+  }
+}
