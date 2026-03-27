@@ -181,7 +181,7 @@ export default function BookingPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', paddingTop: '72px' }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', paddingTop: '108px' }}>
       {/* Header bar */}
       <div style={{
         background: '#111',
@@ -626,6 +626,45 @@ export default function BookingPage() {
               ))}
             </div>
 
+            {/* What happens next */}
+            {sendError !== 'email_failed' && (
+              <div style={{
+                background: '#111', border: '1px solid #222', borderRadius: '4px',
+                padding: '20px 24px', marginBottom: '28px', textAlign: 'left',
+              }}>
+                <p style={{
+                  fontFamily: "'Montserrat', sans-serif", fontSize: '10px',
+                  fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase',
+                  color: '#888', marginBottom: '16px',
+                }}>What happens next</p>
+                {[
+                  { num: '1', text: "We'll WhatsApp you to confirm your booking — usually within a few hours." },
+                  { num: '2', text: 'Meet us at your pick-up location on the date you selected.' },
+                  { num: '3', text: 'Pay in cash, pick up the keys, and enjoy your drive.' },
+                ].map(step => (
+                  <div key={step.num} style={{
+                    display: 'flex', gap: '14px', alignItems: 'flex-start',
+                    marginBottom: step.num !== '3' ? '12px' : 0,
+                  }}>
+                    <div style={{
+                      width: '22px', height: '22px', flexShrink: 0,
+                      borderRadius: '50%',
+                      background: 'rgba(192,57,43,0.15)',
+                      border: '1px solid rgba(192,57,43,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '10px', fontWeight: 700, color: '#c0392b',
+                    }}>{step.num}</div>
+                    <p style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '13px', fontWeight: 300, color: '#999', lineHeight: 1.6,
+                      paddingTop: '2px',
+                    }}>{step.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* WhatsApp CTA — prominent if email failed, secondary otherwise */}
             {sendError === 'email_failed' ? (
               <a
@@ -835,7 +874,7 @@ function PriceSidebar({
       borderRadius: '4px',
       padding: '24px',
       position: 'sticky',
-      top: '100px',
+      top: '136px',
     }}>
       <div style={{
         fontFamily: "'Montserrat', sans-serif",

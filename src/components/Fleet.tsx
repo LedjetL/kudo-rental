@@ -179,6 +179,19 @@ function CarCard({ car, index, inView, onBook }: {
         }}>{car.category}</div>
 
 
+        {/* Badge */}
+        {car.badge && !isUnavailable && (
+          <div style={{
+            position: 'absolute', top: '14px', right: '14px',
+            padding: '4px 10px',
+            background: 'rgba(192,57,43,0.9)',
+            borderRadius: '2px',
+            color: '#fff',
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: '9px', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
+          }}>{car.badge}</div>
+        )}
+
         {/* Unavailable overlay */}
         {isUnavailable && (
           <div style={{

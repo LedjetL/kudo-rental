@@ -16,7 +16,7 @@ const FAQS = [
   },
   {
     q: 'Do I need an international driver\'s license?',
-    a: 'A valid EU or national driver\'s license is accepted. For non-EU visitors, an International Driving Permit (IDP) is recommended.',
+    a: 'A valid EU or national driver\'s license is accepted. For non-EU visitors just the country license should work.',
   },
   {
     q: 'How is my booking confirmed?',
@@ -32,7 +32,7 @@ const FAQS = [
   },
   {
     q: 'Is fuel included in the price?',
-    a: 'No. The car is provided with a full tank and should be returned full. Fuel is not included in the daily rate.',
+    a: 'No. The car is to be returned with the ammout of fuel it is left. Fuel is not included in the daily rate.',
   },
 ]
 

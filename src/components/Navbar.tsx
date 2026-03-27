@@ -8,7 +8,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40)
+    const handleScroll = () => setScrolled(window.scrollY > 36)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -26,7 +26,7 @@ export default function Navbar() {
     <>
       <nav style={{
         position: 'fixed',
-        top: 0, left: 0, right: 0,
+        top: 36, left: 0, right: 0,
         zIndex: 100,
         display: 'flex',
         alignItems: 'center',
@@ -94,7 +94,7 @@ export default function Navbar() {
       {/* Mobile menu overlay */}
       <div style={{
         position: 'fixed',
-        top: '68px', left: 0, right: 0, bottom: 0,
+        top: '104px', left: 0, right: 0, bottom: 0,
         zIndex: 99,
         background: 'rgba(10,10,10,0.98)',
         display: 'flex',

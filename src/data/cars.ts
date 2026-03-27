@@ -3,6 +3,7 @@ export interface Car {
   name: string
   year: number
   color?: string
+  badge?: string
   category: 'Sedan' | 'Premium' | 'SUV'
   pricePerDay: number
   seats: number
@@ -20,6 +21,7 @@ export const cars: Car[] = [
     name: 'VW Jetta',
     year: 2013,
     color: 'Brown',
+    badge: 'Best Value',
     category: 'Sedan',
     pricePerDay: 35,
     seats: 5,
@@ -47,6 +49,7 @@ export const cars: Car[] = [
     id: 'audi-a7',
     name: 'Audi A7',
     year: 2013,
+    badge: 'Most Popular',
     category: 'Premium',
     pricePerDay: 70,
     seats: 5,
@@ -60,6 +63,7 @@ export const cars: Car[] = [
     id: 'volvo-xc90',
     name: 'Volvo XC90',
     year: 2006,
+    badge: 'Family Choice',
     category: 'SUV',
     pricePerDay: 70,
     seats: 7,
