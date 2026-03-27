@@ -1,17 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cars as staticCars, type Car } from '../data/cars'
 import { useInView } from '../hooks/useInView'
 
-function loadCars(): Car[] {
-  try {
-    const saved = localStorage.getItem('kudo_availability')
-    if (!saved) return staticCars
-    const overrides = JSON.parse(saved)
-    return staticCars.map(car => overrides[car.id] ? { ...car, ...overrides[car.id] } : car)
-  } catch {
-    return staticCars
-  }
+const AVAILABILITY_URL =
+  'https://raw.githubusercontent.com/LedjetL/kudo-rental/main/public/availability.json'
+
+function applyOverrides(overrides: Record<string, object>): Car[] {
+  return staticCars.map(car =>
+    overrides[car.id] ? { ...car, ...overrides[car.id] } : car
+  )
 }
 
 type Category = 'All' | 'Sedan' | 'Premium' | 'SUV'
@@ -36,10 +34,19 @@ function WAIcon() {
 
 export default function Fleet() {
   const [activeCategory, setActiveCategory] = useState<Category>('All')
+  const [cars, setCars] = useState<Car[]>(staticCars)
   const navigate = useNavigate()
   const { ref: sectionRef, inView } = useInView()
 
-  const cars = loadCars()
+  useEffect(() => {
+    fetch(`${AVAILABILITY_URL}?t=${Date.now()}`)
+      .then(r => r.json())
+      .then(overrides => {
+        if (Object.keys(overrides).length > 0) setCars(applyOverrides(overrides))
+      })
+      .catch(() => {})
+  }, [])
+
   const filtered = activeCategory === 'All' ? cars : cars.filter((c: Car) => c.category === activeCategory)
 
   return (
