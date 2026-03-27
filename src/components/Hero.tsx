@@ -54,7 +54,9 @@ export default function Hero() {
 
   const today = new Date().toISOString().split('T')[0]
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
-  const [wLocation, setWLocation] = useState(LOCATIONS[0])
+  const [wPickupLocation, setWPickupLocation] = useState(LOCATIONS[0])
+  const [wDropoffLocation, setWDropoffLocation] = useState(LOCATIONS[0])
+  const [differentDropoff, setDifferentDropoff] = useState(false)
   const [wPickup, setWPickup] = useState(today)
   const [wDropoff, setWDropoff] = useState(tomorrow)
 
@@ -68,7 +70,8 @@ export default function Hero() {
   const handleSearch = () => {
     sessionStorage.setItem('kudo_pickup', wPickup)
     sessionStorage.setItem('kudo_dropoff', wDropoff)
-    sessionStorage.setItem('kudo_location', wLocation)
+    sessionStorage.setItem('kudo_pickup_location', wPickupLocation)
+    sessionStorage.setItem('kudo_dropoff_location', differentDropoff ? wDropoffLocation : wPickupLocation)
     document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -201,6 +204,32 @@ export default function Hero() {
               color: '#c0392b', marginBottom: '14px',
             }}>Quick Reservation</p>
 
+            {/* Different drop-off toggle */}
+            <label style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              cursor: 'pointer', marginBottom: '12px',
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '11px', color: '#888', userSelect: 'none',
+            }}>
+              <span style={{
+                width: '16px', height: '16px', flexShrink: 0,
+                border: `1px solid ${differentDropoff ? '#c0392b' : '#3a3a3a'}`,
+                borderRadius: '2px',
+                background: differentDropoff ? '#c0392b' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}>
+                {differentDropoff && <span style={{ color: '#fff', fontSize: '10px', lineHeight: 1 }}>✓</span>}
+              </span>
+              <input
+                type="checkbox"
+                checked={differentDropoff}
+                onChange={e => setDifferentDropoff(e.target.checked)}
+                style={{ display: 'none' }}
+              />
+              Return to a different location
+            </label>
+
             <div className="hero-widget-grid" style={{ display: 'grid', gap: '10px', alignItems: 'end' }}>
               {/* Pickup Location */}
               <div>
@@ -211,14 +240,34 @@ export default function Hero() {
                     fontSize: '13px', pointerEvents: 'none',
                   }}>📍</span>
                   <select
-                    value={wLocation}
-                    onChange={e => setWLocation(e.target.value)}
+                    value={wPickupLocation}
+                    onChange={e => setWPickupLocation(e.target.value)}
                     style={{ ...widgetInputStyle, paddingLeft: '34px' }}
                   >
                     {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </div>
               </div>
+
+              {/* Drop-off Location — only shown when different drop-off is checked */}
+              {differentDropoff && (
+                <div>
+                  <label style={widgetLabelStyle}>Drop-off Location</label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{
+                      position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
+                      fontSize: '13px', pointerEvents: 'none',
+                    }}>🏁</span>
+                    <select
+                      value={wDropoffLocation}
+                      onChange={e => setWDropoffLocation(e.target.value)}
+                      style={{ ...widgetInputStyle, paddingLeft: '34px' }}
+                    >
+                      {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
 
               {/* Pickup Date */}
               <div>

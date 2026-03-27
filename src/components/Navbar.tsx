@@ -62,6 +62,7 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }} className="desktop-nav">
           <a href="/#fleet" style={navLinkStyle}>Fleet</a>
           <a href="/#about" style={navLinkStyle}>About</a>
+          <a href="/#faq" style={navLinkStyle}>FAQ</a>
           <a href="/#contact" style={navLinkStyle}>Contact</a>
           <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" style={whatsappBtnStyle}>
             <WhatsAppIcon /> WhatsApp
@@ -107,6 +108,7 @@ export default function Navbar() {
         {[
           { label: 'Fleet', href: '/#fleet' },
           { label: 'About', href: '/#about' },
+          { label: 'FAQ', href: '/#faq' },
           { label: 'Contact', href: '/#contact' },
         ].map(link => (
           <a key={link.label} href={link.href} onClick={closeMenu} style={{
