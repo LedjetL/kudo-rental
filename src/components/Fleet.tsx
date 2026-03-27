@@ -1,7 +1,18 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { cars, type Car } from '../data/cars'
+import { cars as staticCars, type Car } from '../data/cars'
 import { useInView } from '../hooks/useInView'
+
+function loadCars(): Car[] {
+  try {
+    const saved = localStorage.getItem('kudo_availability')
+    if (!saved) return staticCars
+    const overrides = JSON.parse(saved)
+    return staticCars.map(car => overrides[car.id] ? { ...car, ...overrides[car.id] } : car)
+  } catch {
+    return staticCars
+  }
+}
 
 type Category = 'All' | 'Sedan' | 'Premium' | 'SUV'
 
@@ -28,7 +39,8 @@ export default function Fleet() {
   const navigate = useNavigate()
   const { ref: sectionRef, inView } = useInView()
 
-  const filtered = activeCategory === 'All' ? cars : cars.filter(c => c.category === activeCategory)
+  const cars = loadCars()
+  const filtered = activeCategory === 'All' ? cars : cars.filter((c: Car) => c.category === activeCategory)
 
   return (
     <section id="fleet" ref={sectionRef} style={{

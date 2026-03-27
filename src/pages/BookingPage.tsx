@@ -28,10 +28,9 @@ interface BookingForm {
 
 const LOCATIONS = [
   'Tirana Airport (TIA)',
-  'Tirana City Center',
+  "Ku'do Rental Office",
   'Durrës',
   'Vlorë',
-  'Shkodër',
 ]
 
 function formatDate(dateStr: string) {

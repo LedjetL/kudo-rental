@@ -4,10 +4,9 @@ import { useCountUp } from '../hooks/useCountUp'
 
 const LOCATIONS = [
   'Tirana Airport (TIA)',
-  'Tirana City Center',
+  'Kudo Rental Office',
   'Durrës',
   'Vlorë',
-  'Shkodër',
 ]
 
 
