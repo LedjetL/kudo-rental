@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { cars as staticCars, type Car, type Booking } from '../data/cars'
 import { useInView } from '../hooks/useInView'
 
-const AVAILABILITY_URL =
-  'https://raw.githubusercontent.com/LedjetL/kudo-rental/main/public/availability.json'
+const AVAILABILITY_URL = '/api/get-availability'
 
 function applyOverrides(overrides: Record<string, { bookings?: Booking[] }>): Car[] {
   return staticCars.map(car => {
@@ -50,7 +49,7 @@ export default function Fleet() {
   const { ref: sectionRef, inView } = useInView()
 
   useEffect(() => {
-    fetch(`${AVAILABILITY_URL}?t=${Date.now()}`)
+    fetch(AVAILABILITY_URL)
       .then(r => r.json())
       .then(overrides => {
         if (Object.keys(overrides).length > 0) setCars(applyOverrides(overrides))

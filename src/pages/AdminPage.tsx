@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { cars } from '../data/cars'
 
 const ADMIN_PASSWORD = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'kudo-admin'
-const AVAILABILITY_URL = 'https://raw.githubusercontent.com/LedjetL/kudo-rental/main/public/availability.json'
+const AVAILABILITY_URL = '/api/get-availability'
 
 type Booking = { from: string; until: string }
 type Overrides = Record<string, { bookings: Booking[] }>
@@ -23,7 +23,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (!authed) return
     setLoading(true)
-    fetch(`${AVAILABILITY_URL}?t=${Date.now()}`)
+    fetch(AVAILABILITY_URL)
       .then(r => r.json())
       .then(data => setOverrides(data || {}))
       .catch(() => {})
