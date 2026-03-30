@@ -57,10 +57,19 @@ export default function Fleet() {
       .catch(() => {})
   }, [])
 
-  const filtered = activeCategory === 'All' ? cars : cars.filter((c: Car) => c.category === activeCategory)
+  const [pickup, setPickup] = useState(() => sessionStorage.getItem('kudo_pickup') || '')
+  const [dropoff, setDropoff] = useState(() => sessionStorage.getItem('kudo_dropoff') || '')
 
-  const pickup = sessionStorage.getItem('kudo_pickup') || ''
-  const dropoff = sessionStorage.getItem('kudo_dropoff') || ''
+  useEffect(() => {
+    const handler = () => {
+      setPickup(sessionStorage.getItem('kudo_pickup') || '')
+      setDropoff(sessionStorage.getItem('kudo_dropoff') || '')
+    }
+    window.addEventListener('kudoDatesChanged', handler)
+    return () => window.removeEventListener('kudoDatesChanged', handler)
+  }, [])
+
+  const filtered = activeCategory === 'All' ? cars : cars.filter((c: Car) => c.category === activeCategory)
 
   return (
     <section id="fleet" ref={sectionRef} style={{

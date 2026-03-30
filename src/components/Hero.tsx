@@ -56,6 +56,7 @@ export default function Hero() {
     sessionStorage.setItem('kudo_dropoff', wDropoff)
     sessionStorage.setItem('kudo_pickup_location', wPickupLocation)
     sessionStorage.setItem('kudo_dropoff_location', differentDropoff ? wDropoffLocation : wPickupLocation)
+    window.dispatchEvent(new CustomEvent('kudoDatesChanged'))
     document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })
   }
 
