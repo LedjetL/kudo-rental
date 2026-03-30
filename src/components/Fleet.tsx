@@ -19,7 +19,7 @@ function getActiveBooking(car: Car, pickup: string, dropoff: string): Booking | 
   const today = new Date().toISOString().split('T')[0]
   const from = pickup || today
   const until = dropoff || today
-  return bookings.find(b => b.from <= until && b.until >= from) || null
+  return bookings.find(b => b.from <= until && b.until > from) || null
 }
 
 type Category = 'All' | 'Sedan' | 'Premium' | 'SUV'
