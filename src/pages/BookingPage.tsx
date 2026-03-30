@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
-import { cars, extras, type Car } from '../data/cars'
+import { cars, extras, getEffectiveRate, type Car } from '../data/cars'
 import FloatingWhatsApp from '../components/FloatingWhatsApp'
 
 // ── EmailJS config — replace with your real values from emailjs.com ──
@@ -62,6 +62,21 @@ export default function BookingPage() {
   const [step, setStep] = useState<Step>('dates')
   const [isSending, setIsSending] = useState(false)
   const [sendError, setSendError] = useState('')
+  const [carBookings, setCarBookings] = useState<{ from: string; until: string }[]>([])
+
+  useEffect(() => {
+    fetch('/api/get-availability')
+      .then(r => r.json())
+      .then(data => {
+        if (carId && data[carId]?.bookings) setCarBookings(data[carId].bookings)
+      })
+      .catch(() => {})
+  }, [carId])
+
+  const isDateConflict = (pickup: string, dropoff: string) => {
+    if (!pickup || !dropoff) return false
+    return carBookings.some(b => b.from < dropoff && b.until > pickup)
+  }
   const [errors, setErrors] = useState<Partial<Record<keyof BookingForm, string>>>({})
   const [bookingRef] = useState(generateRef())
   const [form, setForm] = useState<BookingForm>(() => {
@@ -80,6 +95,8 @@ export default function BookingPage() {
     }
   })
 
+  const dateConflict = isDateConflict(form.pickupDate, form.dropoffDate)
+
   if (!car) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a' }}>
@@ -92,11 +109,13 @@ export default function BookingPage() {
   }
 
   const days = getDays(form.pickupDate, form.dropoffDate)
+  const dailyRate = getEffectiveRate(car, days)
   const extrasTotal = form.selectedExtras.reduce((acc, id) => {
     const extra = extras.find(e => e.id === id)
     return acc + (extra ? extra.pricePerDay * days : 0)
   }, 0)
-  const total = car.pricePerDay * days + extrasTotal
+  const total = dailyRate * days + extrasTotal
+  const minDaysError = car.minDays && days > 0 && days < car.minDays
 
   const toggleExtra = (id: string) => {
     setForm(f => ({
@@ -323,6 +342,43 @@ export default function BookingPage() {
                 </div>
               )}
 
+              {minDaysError && (
+                <div style={{
+                  padding: '14px 16px',
+                  background: 'rgba(192,57,43,0.07)',
+                  border: '1px solid rgba(192,57,43,0.3)',
+                  borderRadius: '4px',
+                  marginBottom: '24px',
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '12px',
+                  color: '#e74c3c',
+                  lineHeight: 1.6,
+                }}>
+                  The {car.name} requires a minimum of {car.minDays} days. Please adjust your dates.
+                </div>
+              )}
+
+              {dateConflict && days >= 1 && (
+                <div style={{
+                  padding: '14px 16px',
+                  background: 'rgba(192,57,43,0.07)',
+                  border: '1px solid rgba(192,57,43,0.3)',
+                  borderRadius: '4px',
+                  marginBottom: '24px',
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '12px',
+                  color: '#e74c3c',
+                  lineHeight: 1.6,
+                }}>
+                  This car is already reserved for your selected dates. Please choose different dates or{' '}
+                  <a
+                    href="https://wa.me/355685216312"
+                    target="_blank" rel="noopener noreferrer"
+                    style={{ color: '#25D366', textDecoration: 'underline' }}
+                  >contact us on WhatsApp</a> to check availability.
+                </div>
+              )}
+
               <SectionTitle>Optional Extras</SectionTitle>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {extras.map(extra => {
@@ -375,8 +431,8 @@ export default function BookingPage() {
             <PriceSidebar car={car} days={days} form={form} total={total}>
               <button
                 onClick={() => setStep('details')}
-                disabled={days < 1}
-                style={{ ...primaryBtnStyle, opacity: days < 1 ? 0.5 : 1 }}
+                disabled={days < 1 || !!dateConflict || !!minDaysError}
+                style={{ ...primaryBtnStyle, opacity: days < 1 || dateConflict || minDaysError ? 0.5 : 1 }}
               >
                 Continue →
               </button>

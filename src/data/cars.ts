@@ -10,7 +10,9 @@ export interface Car {
   color?: string
   badge?: string
   category: 'Sedan' | 'Premium' | 'SUV'
-  pricePerDay: number
+  pricePerDay: number        // base rate (1-2 days)
+  pricePerDayLong?: number   // rate for 3+ days
+  minDays?: number           // minimum rental period
   seats: number
   transmission: string
   fuel: string
@@ -18,6 +20,11 @@ export interface Car {
   image: string
   available: boolean
   bookings?: Booking[]
+}
+
+export function getEffectiveRate(car: Car, days: number): number {
+  if (days >= 3 && car.pricePerDayLong) return car.pricePerDayLong
+  return car.pricePerDay
 }
 
 export const cars: Car[] = [
@@ -28,7 +35,8 @@ export const cars: Car[] = [
     color: 'Brown',
     badge: 'Best Value',
     category: 'Sedan',
-    pricePerDay: 35,
+    pricePerDay: 40,
+    pricePerDayLong: 35,
     seats: 5,
     transmission: 'Automatic',
     fuel: 'Diesel',
@@ -42,7 +50,8 @@ export const cars: Car[] = [
     year: 2013,
     color: 'Black',
     category: 'Sedan',
-    pricePerDay: 35,
+    pricePerDay: 40,
+    pricePerDayLong: 35,
     seats: 5,
     transmission: 'Automatic',
     fuel: 'Diesel',
@@ -57,6 +66,7 @@ export const cars: Car[] = [
     badge: 'Most Popular',
     category: 'Premium',
     pricePerDay: 70,
+    minDays: 3,
     seats: 5,
     transmission: 'Automatic',
     fuel: 'Diesel',

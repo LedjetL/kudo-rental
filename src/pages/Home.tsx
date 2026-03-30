@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import HowItWorks from '../components/HowItWorks'
 import Fleet from '../components/Fleet'
+import CarShowcase from '../components/CarShowcase'
 import About from '../components/About'
 import Testimonials from '../components/Testimonials'
 import FAQ from '../components/FAQ'
@@ -17,6 +18,7 @@ export default function Home() {
       <Hero />
       <HowItWorks />
       <Fleet />
+      <CarShowcase />
       <About />
       <Testimonials />
       <FAQ />

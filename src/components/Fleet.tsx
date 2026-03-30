@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { cars as staticCars, type Car, type Booking } from '../data/cars'
+import { cars as staticCars, getEffectiveRate, type Car, type Booking } from '../data/cars'
 import { useInView } from '../hooks/useInView'
 
 const AVAILABILITY_URL = '/api/get-availability'
@@ -68,6 +68,10 @@ export default function Fleet() {
     window.addEventListener('kudoDatesChanged', handler)
     return () => window.removeEventListener('kudoDatesChanged', handler)
   }, [])
+
+  const selectedDays = pickup && dropoff
+    ? Math.ceil((new Date(dropoff).getTime() - new Date(pickup).getTime()) / 86400000)
+    : 0
 
   const filtered = activeCategory === 'All' ? cars : cars.filter((c: Car) => c.category === activeCategory)
 
@@ -138,6 +142,7 @@ export default function Fleet() {
               onBook={() => navigate(`/book/${car.id}`)}
               pickup={pickup}
               dropoff={dropoff}
+              selectedDays={selectedDays}
             />
           ))}
         </div>
@@ -162,14 +167,16 @@ export default function Fleet() {
   )
 }
 
-function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
+function CarCard({ car, index, inView, onBook, pickup, dropoff, selectedDays }: {
   car: Car; index: number; inView: boolean; onBook: () => unknown
-  pickup: string; dropoff: string
+  pickup: string; dropoff: string; selectedDays: number
 }) {
   const [hovered, setHovered] = useState(false)
   const activeBooking = getActiveBooking(car, pickup, dropoff)
   const isUnavailable = !car.available || !!activeBooking
   const catColor = CATEGORY_COLORS[car.category]
+  const effectiveRate = getEffectiveRate(car, selectedDays)
+  const minDaysBlocked = !!car.minDays && selectedDays > 0 && selectedDays < car.minDays
 
   const waMsg = encodeURIComponent(`Hi! I'm interested in the ${car.name} (${car.year}). Is it available?`)
 
@@ -330,13 +337,13 @@ function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
             <span style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: '32px', fontWeight: 600, color: '#f5f5f5', lineHeight: 1,
-            }}>€{car.pricePerDay}</span>
+            }}>€{effectiveRate}</span>
             <span style={{
               fontFamily: "'Montserrat', sans-serif",
               fontSize: '11px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px',
             }}>/day</span>
           </div>
-          {!isUnavailable ? (
+          {!isUnavailable && !minDaysBlocked ? (
             <>
               <button onClick={onBook} style={bookBtnStyle}>Book Now</button>
               <a
@@ -345,6 +352,8 @@ function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
                 style={waBtnStyle}
               ><WAIcon /> Ask on WhatsApp</a>
             </>
+          ) : minDaysBlocked ? (
+            <div style={unavailableStyle}>Min {car.minDays} days</div>
           ) : (
             <div style={unavailableStyle}>
               {activeBooking ? `Available ${formatBookedUntil(activeBooking.until)}` : 'Unavailable'}
@@ -363,7 +372,7 @@ function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
         transition: 'background 0.3s',
         minWidth: 0,
       }}>
-        {!isUnavailable ? (
+        {!isUnavailable && !minDaysBlocked ? (
           <>
             {/* Price */}
             <div style={{ textAlign: 'center', marginBottom: '4px' }}>
@@ -371,17 +380,17 @@ function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
                 fontFamily: "'Montserrat', sans-serif",
                 fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
                 color: '#666', marginBottom: '6px',
-              }}>From</div>
+              }}>{selectedDays >= 3 && car.pricePerDayLong ? 'Your rate' : 'From'}</div>
               <div style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: '44px', fontWeight: 600, color: '#f5f5f5',
                 lineHeight: 1,
-              }}>€{car.pricePerDay}</div>
+              }}>€{effectiveRate}</div>
               <div style={{
                 fontFamily: "'Montserrat', sans-serif",
                 fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
                 color: '#888', marginTop: '4px',
-              }}>per day</div>
+              }}>per day{car.minDays ? ` · ${car.minDays}d min` : ''}</div>
             </div>
 
             <div style={{ width: '100%', height: '1px', background: '#222', margin: '4px 0' }} />
@@ -406,6 +415,8 @@ function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
               lineHeight: 1.6,
             }}>No deposit · Pay on pickup</p>
           </>
+        ) : minDaysBlocked ? (
+          <div style={unavailableStyle}>Min {car.minDays} days{'\n'}required</div>
         ) : (
           <div style={unavailableStyle}>
             {activeBooking ? `Available\n${formatBookedUntil(activeBooking.until)}` : 'Unavailable'}
