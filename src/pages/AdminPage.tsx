@@ -5,7 +5,10 @@ import { cars } from '../data/cars'
 const ADMIN_PASSWORD = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'kudo-admin'
 const AVAILABILITY_URL = 'https://raw.githubusercontent.com/LedjetL/kudo-rental/main/public/availability.json'
 
-type Overrides = Record<string, { available: boolean; bookedUntil?: string }>
+type Booking = { from: string; until: string }
+type Overrides = Record<string, { bookings: Booking[] }>
+
+const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
 export default function AdminPage() {
   const navigate = useNavigate()
@@ -15,8 +18,8 @@ export default function AdminPage() {
   const [overrides, setOverrides] = useState<Overrides>({})
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [loading, setLoading] = useState(false)
+  const [newBooking, setNewBooking] = useState<Record<string, { from: string; until: string }>>({})
 
-  // Load current availability from GitHub when admin logs in
   useEffect(() => {
     if (!authed) return
     setLoading(true)
@@ -53,27 +56,25 @@ export default function AdminPage() {
     }
   }
 
-  const setAvailable = (carId: string, available: boolean) => {
-    const updated = {
-      ...overrides,
-      [carId]: { available, bookedUntil: overrides[carId]?.bookedUntil || '' },
-    }
+  const addBooking = (carId: string) => {
+    const nb = newBooking[carId]
+    if (!nb?.from || !nb?.until || nb.from >= nb.until) return
+    const current = overrides[carId]?.bookings || []
+    const updated = { ...overrides, [carId]: { bookings: [...current, { from: nb.from, until: nb.until }] } }
     setOverrides(updated)
     save(updated)
+    setNewBooking(prev => ({ ...prev, [carId]: { from: '', until: '' } }))
   }
 
-  const setBookedUntil = (carId: string, date: string) => {
-    const updated = {
-      ...overrides,
-      [carId]: { available: false, bookedUntil: date },
-    }
-    setOverrides(updated)
-    save(updated)
-  }
-
-  const clearOverride = (carId: string) => {
+  const removeBooking = (carId: string, idx: number) => {
+    const current = overrides[carId]?.bookings || []
+    const bookings = current.filter((_, i) => i !== idx)
     const updated = { ...overrides }
-    delete updated[carId]
+    if (bookings.length === 0) {
+      delete updated[carId]
+    } else {
+      updated[carId] = { bookings }
+    }
     setOverrides(updated)
     save(updated)
   }
@@ -164,7 +165,7 @@ export default function AdminPage() {
             <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#888' }}>Saving...</span>
           )}
           {status === 'saved' && (
-            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#27ae60' }}>✓ Saved — deploying in ~2 min</span>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#27ae60' }}>✓ Saved — live in ~2 min</span>
           )}
           {status === 'error' && (
             <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#e74c3c' }}>✗ Save failed — check GITHUB_TOKEN</span>
@@ -189,11 +190,10 @@ export default function AdminPage() {
             Loading current availability...
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {cars.map(car => {
-              const override = overrides[car.id]
-              const isAvailable = override !== undefined ? override.available : car.available
-              const bookedUntil = override?.bookedUntil || car.bookedUntil || ''
+              const bookings = overrides[car.id]?.bookings || []
+              const nb = newBooking[car.id] || { from: '', until: '' }
 
               return (
                 <div key={car.id} style={{ background: '#111', border: '1px solid #2a2a2a', borderRadius: '4px', overflow: 'hidden' }}>
@@ -205,98 +205,85 @@ export default function AdminPage() {
                     }}>
                       <img
                         src={car.image} alt={car.name} loading="lazy"
-                        style={{
-                          width: '100%', height: '100px', objectFit: 'contain',
-                          filter: isAvailable ? 'none' : 'grayscale(60%) brightness(0.6)',
-                        }}
+                        style={{ width: '100%', height: '100px', objectFit: 'contain' }}
                         onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
                       />
                     </div>
 
                     {/* Details */}
                     <div style={{ padding: '20px 24px' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-                        <div>
-                          <h3 style={{
-                            fontFamily: "'Cormorant Garamond', serif",
-                            fontSize: '20px', fontWeight: 600, color: '#f5f5f5', marginBottom: '2px',
-                          }}>
-                            {car.name} {car.year}{car.color ? ` · ${car.color}` : ''}
-                          </h3>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#666', letterSpacing: '1px' }}>
-                            {car.category} · €{car.pricePerDay}/day
-                          </p>
-                        </div>
+                      <h3 style={{
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: '20px', fontWeight: 600, color: '#f5f5f5', marginBottom: '2px',
+                      }}>
+                        {car.name} {car.year}{car.color ? ` · ${car.color}` : ''}
+                      </h3>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#666', letterSpacing: '1px', marginBottom: '16px' }}>
+                        {car.category} · €{car.pricePerDay}/day
+                      </p>
 
-                        {/* Toggles */}
-                        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                          <button
-                            onClick={() => setAvailable(car.id, true)}
-                            disabled={status === 'saving'}
-                            style={{
-                              padding: '7px 16px', borderRadius: '2px',
-                              border: `1px solid ${isAvailable ? '#27ae60' : '#2a2a2a'}`,
-                              background: isAvailable ? 'rgba(39,174,96,0.15)' : 'transparent',
-                              color: isAvailable ? '#27ae60' : '#555',
-                              fontFamily: "'Montserrat', sans-serif", fontSize: '10px', fontWeight: 600,
-                              letterSpacing: '1.5px', textTransform: 'uppercase',
-                              cursor: status === 'saving' ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
-                            }}
-                          >Available</button>
-                          <button
-                            onClick={() => setAvailable(car.id, false)}
-                            disabled={status === 'saving'}
-                            style={{
-                              padding: '7px 16px', borderRadius: '2px',
-                              border: `1px solid ${!isAvailable ? '#c0392b' : '#2a2a2a'}`,
-                              background: !isAvailable ? 'rgba(192,57,43,0.15)' : 'transparent',
-                              color: !isAvailable ? '#c0392b' : '#555',
-                              fontFamily: "'Montserrat', sans-serif", fontSize: '10px', fontWeight: 600,
-                              letterSpacing: '1.5px', textTransform: 'uppercase',
-                              cursor: status === 'saving' ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
-                            }}
-                          >Booked</button>
+                      {/* Existing bookings */}
+                      {bookings.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+                          {bookings.map((b, i) => (
+                            <div key={i} style={{
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              padding: '7px 12px',
+                              background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.25)',
+                              borderRadius: '2px',
+                            }}>
+                              <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#c8c8c8' }}>
+                                {fmt(b.from)} → {fmt(b.until)}
+                              </span>
+                              <button
+                                onClick={() => removeBooking(car.id, i)}
+                                disabled={status === 'saving'}
+                                style={{
+                                  background: 'none', border: 'none', color: '#c0392b',
+                                  cursor: 'pointer', fontSize: '14px', lineHeight: 1, padding: '0 4px',
+                                }}
+                              >×</button>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-
-                      {/* Booked until */}
-                      {!isAvailable && (
-                        <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                          <label style={{
-                            fontFamily: "'Montserrat', sans-serif", fontSize: '10px', fontWeight: 600,
-                            letterSpacing: '1.5px', textTransform: 'uppercase', color: '#888', whiteSpace: 'nowrap',
-                          }}>Available from</label>
-                          <input
-                            type="date"
-                            value={bookedUntil}
-                            min={new Date().toISOString().split('T')[0]}
-                            onChange={e => setBookedUntil(car.id, e.target.value)}
-                            style={{
-                              padding: '7px 12px', background: '#161616',
-                              border: '1px solid #2a2a2a', borderRadius: '2px',
-                              color: '#f5f5f5', fontFamily: "'Montserrat', sans-serif",
-                              fontSize: '12px', colorScheme: 'dark', outline: 'none',
-                            }}
-                          />
-                          {bookedUntil && (
-                            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#c0392b' }}>
-                              Until {new Date(bookedUntil).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}
-                            </span>
-                          )}
-                        </div>
+                      ) : (
+                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '11px', color: '#444', marginBottom: '14px' }}>
+                          No bookings — available
+                        </p>
                       )}
 
-                      {/* Clear override */}
-                      {override !== undefined && (
+                      {/* Add booking */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '10px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#666' }}>Add booking</span>
+                        <input
+                          type="date"
+                          value={nb.from}
+                          min={new Date().toISOString().split('T')[0]}
+                          onChange={e => setNewBooking(prev => ({ ...prev, [car.id]: { ...nb, from: e.target.value } }))}
+                          style={dateInputStyle}
+                        />
+                        <span style={{ color: '#555', fontSize: '12px' }}>→</span>
+                        <input
+                          type="date"
+                          value={nb.until}
+                          min={nb.from || new Date().toISOString().split('T')[0]}
+                          onChange={e => setNewBooking(prev => ({ ...prev, [car.id]: { ...nb, until: e.target.value } }))}
+                          style={dateInputStyle}
+                        />
                         <button
-                          onClick={() => clearOverride(car.id)}
+                          onClick={() => addBooking(car.id)}
+                          disabled={!nb.from || !nb.until || nb.from >= nb.until || status === 'saving'}
                           style={{
-                            marginTop: '10px', background: 'none', border: 'none',
-                            color: '#555', fontFamily: "'Montserrat', sans-serif",
-                            fontSize: '10px', cursor: 'pointer', textDecoration: 'underline',
+                            padding: '7px 16px', background: nb.from && nb.until && nb.from < nb.until ? '#c0392b' : '#1e1e1e',
+                            border: '1px solid #2a2a2a', borderRadius: '2px',
+                            color: nb.from && nb.until && nb.from < nb.until ? '#fff' : '#444',
+                            fontFamily: "'Montserrat', sans-serif", fontSize: '10px', fontWeight: 600,
+                            letterSpacing: '1.5px', textTransform: 'uppercase',
+                            cursor: nb.from && nb.until && nb.from < nb.until ? 'pointer' : 'not-allowed',
+                            transition: 'all 0.2s',
                           }}
-                        >Reset to default</button>
-                      )}
+                        >Add</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -307,4 +294,11 @@ export default function AdminPage() {
       </div>
     </div>
   )
+}
+
+const dateInputStyle: React.CSSProperties = {
+  padding: '7px 10px', background: '#161616',
+  border: '1px solid #2a2a2a', borderRadius: '2px',
+  color: '#f5f5f5', fontFamily: "'Montserrat', sans-serif",
+  fontSize: '12px', colorScheme: 'dark', outline: 'none',
 }

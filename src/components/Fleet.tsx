@@ -1,15 +1,26 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { cars as staticCars, type Car } from '../data/cars'
+import { cars as staticCars, type Car, type Booking } from '../data/cars'
 import { useInView } from '../hooks/useInView'
 
 const AVAILABILITY_URL =
   'https://raw.githubusercontent.com/LedjetL/kudo-rental/main/public/availability.json'
 
-function applyOverrides(overrides: Record<string, object>): Car[] {
-  return staticCars.map(car =>
-    overrides[car.id] ? { ...car, ...overrides[car.id] } : car
-  )
+function applyOverrides(overrides: Record<string, { bookings?: Booking[] }>): Car[] {
+  return staticCars.map(car => {
+    const o = overrides[car.id]
+    if (!o) return car
+    return { ...car, bookings: o.bookings || [] }
+  })
+}
+
+function getActiveBooking(car: Car, pickup: string, dropoff: string): Booking | null {
+  const bookings = car.bookings || []
+  if (bookings.length === 0) return null
+  const today = new Date().toISOString().split('T')[0]
+  const from = pickup || today
+  const until = dropoff || today
+  return bookings.find(b => b.from <= until && b.until >= from) || null
 }
 
 type Category = 'All' | 'Sedan' | 'Premium' | 'SUV'
@@ -48,6 +59,9 @@ export default function Fleet() {
   }, [])
 
   const filtered = activeCategory === 'All' ? cars : cars.filter((c: Car) => c.category === activeCategory)
+
+  const pickup = sessionStorage.getItem('kudo_pickup') || ''
+  const dropoff = sessionStorage.getItem('kudo_dropoff') || ''
 
   return (
     <section id="fleet" ref={sectionRef} style={{
@@ -114,6 +128,8 @@ export default function Fleet() {
               index={i}
               inView={inView}
               onBook={() => navigate(`/book/${car.id}`)}
+              pickup={pickup}
+              dropoff={dropoff}
             />
           ))}
         </div>
@@ -138,11 +154,13 @@ export default function Fleet() {
   )
 }
 
-function CarCard({ car, index, inView, onBook }: {
+function CarCard({ car, index, inView, onBook, pickup, dropoff }: {
   car: Car; index: number; inView: boolean; onBook: () => unknown
+  pickup: string; dropoff: string
 }) {
   const [hovered, setHovered] = useState(false)
-  const isUnavailable = !car.available || (car.bookedUntil && new Date(car.bookedUntil) > new Date())
+  const activeBooking = getActiveBooking(car, pickup, dropoff)
+  const isUnavailable = !car.available || !!activeBooking
   const catColor = CATEGORY_COLORS[car.category]
 
   const waMsg = encodeURIComponent(`Hi! I'm interested in the ${car.name} (${car.year}). Is it available?`)
@@ -223,13 +241,13 @@ function CarCard({ car, index, inView, onBook }: {
               fontSize: '10px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase',
               color: '#f5f5f5', background: 'rgba(0,0,0,0.75)', padding: '6px 16px', borderRadius: '2px',
             }}>Currently Booked</div>
-            {car.bookedUntil && new Date(car.bookedUntil) > new Date() && (
+            {activeBooking && (
               <div style={{
                 fontFamily: "'Montserrat', sans-serif",
                 fontSize: '11px', color: '#c8c8c8', background: 'rgba(0,0,0,0.75)',
                 padding: '4px 12px', borderRadius: '2px',
               }}>
-                From {formatBookedUntil(car.bookedUntil)}
+                Available {formatBookedUntil(activeBooking.until)}
               </div>
             )}
           </div>
@@ -321,9 +339,7 @@ function CarCard({ car, index, inView, onBook }: {
             </>
           ) : (
             <div style={unavailableStyle}>
-              {car.bookedUntil && new Date(car.bookedUntil) > new Date()
-                ? `Available ${formatBookedUntil(car.bookedUntil)}`
-                : 'Unavailable'}
+              {activeBooking ? `Available ${formatBookedUntil(activeBooking.until)}` : 'Unavailable'}
             </div>
           )}
         </div>
@@ -384,9 +400,7 @@ function CarCard({ car, index, inView, onBook }: {
           </>
         ) : (
           <div style={unavailableStyle}>
-            {car.bookedUntil && new Date(car.bookedUntil) > new Date()
-              ? `Available\n${formatBookedUntil(car.bookedUntil)}`
-              : 'Unavailable'}
+            {activeBooking ? `Available\n${formatBookedUntil(activeBooking.until)}` : 'Unavailable'}
           </div>
         )}
       </div>

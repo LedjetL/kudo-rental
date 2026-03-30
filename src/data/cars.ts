@@ -1,3 +1,8 @@
+export interface Booking {
+  from: string  // ISO date e.g. '2026-04-20'
+  until: string // ISO date e.g. '2026-04-30'
+}
+
 export interface Car {
   id: string
   name: string
@@ -12,7 +17,7 @@ export interface Car {
   features: string[]
   image: string
   available: boolean
-  bookedUntil?: string // ISO date string e.g. '2026-04-10'
+  bookings?: Booking[]
 }
 
 export const cars: Car[] = [
