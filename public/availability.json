@@ -1,12 +1,4 @@
 {
-  "jetta-1": {
-    "bookings": [
-      {
-        "from": "2026-04-10",
-        "until": "2026-04-30"
-      }
-    ]
-  },
   "audi-a7": {
     "bookings": [
       {
