@@ -106,7 +106,6 @@ export const cars: Car[] = [
 ]
 
 export const extras = [
-  { id: 'insurance', label: 'Full Insurance', pricePerDay: 10, icon: '🛡️' },
   { id: 'gps', label: 'GPS Navigation', pricePerDay: 5, icon: '🗺️' },
   { id: 'child-seat', label: 'Child Seat', pricePerDay: 5, icon: '👶' },
   { id: 'driver', label: 'Professional Driver', pricePerDay: 40, icon: '🧑‍✈️' },
