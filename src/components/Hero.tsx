@@ -158,7 +158,7 @@ export default function Hero() {
           borderTop: '1px solid rgba(255,255,255,0.08)',
           flexWrap: 'wrap',
         }}>
-          <StatCounter value={4} label="Vehicles" inView={loaded} />
+          <StatCounter value={5} label="Vehicles" inView={loaded} />
           <StatCounter value={35} prefix="€" label="From / Day" inView={loaded} />
           <StatCounter value={24} suffix="/7" label="Support" inView={loaded} />
         </div>
