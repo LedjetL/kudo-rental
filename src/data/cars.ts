@@ -31,7 +31,7 @@ export const cars: Car[] = [
   {
     id: 'jetta-1',
     name: 'VW Jetta',
-    year: 2013,
+    year: 2014,
     color: 'Brown',
     badge: 'Best Value',
     category: 'Sedan',
@@ -62,7 +62,7 @@ export const cars: Car[] = [
   {
     id: 'passat-cc',
     name: 'VW Passat CC',
-    year: 2009,
+    year: 2010,
     color: 'Silver',
     category: 'Sedan',
     pricePerDay: 45,
@@ -81,7 +81,6 @@ export const cars: Car[] = [
     category: 'Premium',
     pricePerDay: 100,
     pricePerDayLong: 70,
-    minDays: 3,
     seats: 5,
     transmission: 'Automatic',
     fuel: 'Diesel',
@@ -92,7 +91,7 @@ export const cars: Car[] = [
   {
     id: 'volvo-xc90',
     name: 'Volvo XC90',
-    year: 2006,
+    year: 2004,
     badge: 'Family Choice',
     category: 'SUV',
     pricePerDay: 90,
