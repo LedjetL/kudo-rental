@@ -90,15 +90,24 @@ export default function CarShowcase() {
                       fontSize: '11px', color: '#666', letterSpacing: '1px',
                     }}>{car.year}{car.color ? ` · ${car.color}` : ''} · {car.category}</p>
                   </div>
+
+                  {/* Price display */}
                   <div style={{ textAlign: 'right' }}>
                     <div style={{
                       fontFamily: "'Cormorant Garamond', serif",
                       fontSize: '28px', fontWeight: 600, color: '#f5f5f5', lineHeight: 1,
-                    }}>€{car.pricePerDayLong ?? car.pricePerDay}</div>
+                    }}>€{car.pricePerDay}</div>
                     <div style={{
                       fontFamily: "'Montserrat', sans-serif",
                       fontSize: '10px', color: '#666', letterSpacing: '1px', textTransform: 'uppercase',
-                    }}>{car.pricePerDayLong ? '3+ days' : 'per day'}</div>
+                    }}>per day</div>
+                    {car.pricePerDayLong && (
+                      <div style={{
+                        marginTop: '6px',
+                        fontFamily: "'Montserrat', sans-serif",
+                        fontSize: '10px', color: '#c0392b', letterSpacing: '1px', textTransform: 'uppercase',
+                      }}>€{car.pricePerDayLong} / 5+ days</div>
+                    )}
                   </div>
                 </div>
 

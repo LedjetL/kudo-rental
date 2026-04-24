@@ -66,6 +66,7 @@ export const cars: Car[] = [
     color: 'Silver',
     category: 'Sedan',
     pricePerDay: 45,
+    pricePerDayLong: 40,
     seats: 5,
     transmission: 'Automatic',
     fuel: 'Diesel',
