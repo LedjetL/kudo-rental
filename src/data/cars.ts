@@ -11,7 +11,7 @@ export interface Car {
   badge?: string
   category: 'Sedan' | 'Premium' | 'SUV'
   pricePerDay: number        // base rate (1-2 days)
-  pricePerDayLong?: number   // rate for 3+ days
+  pricePerDayLong?: number   // rate for 5+ days
   minDays?: number           // minimum rental period
   seats: number
   transmission: string
@@ -23,7 +23,7 @@ export interface Car {
 }
 
 export function getEffectiveRate(car: Car, days: number): number {
-  if (days >= 3 && car.pricePerDayLong) return car.pricePerDayLong
+  if (days >= 5 && car.pricePerDayLong) return car.pricePerDayLong
   return car.pricePerDay
 }
 
@@ -60,12 +60,27 @@ export const cars: Car[] = [
     available: true,
   },
   {
+    id: 'passat-cc',
+    name: 'VW Passat CC',
+    year: 2009,
+    color: 'Silver',
+    category: 'Sedan',
+    pricePerDay: 45,
+    seats: 5,
+    transmission: 'Automatic',
+    fuel: 'Diesel',
+    features: ['Air Conditioning', 'Bluetooth', 'USB Charging', 'Cruise Control'],
+    image: '/cars/passat-cc.jpg',
+    available: true,
+  },
+  {
     id: 'audi-a7',
     name: 'Audi A7',
     year: 2013,
     badge: 'Most Popular',
     category: 'Premium',
-    pricePerDay: 70,
+    pricePerDay: 100,
+    pricePerDayLong: 70,
     minDays: 3,
     seats: 5,
     transmission: 'Automatic',
@@ -80,7 +95,8 @@ export const cars: Car[] = [
     year: 2006,
     badge: 'Family Choice',
     category: 'SUV',
-    pricePerDay: 70,
+    pricePerDay: 90,
+    pricePerDayLong: 70,
     seats: 7,
     transmission: 'Automatic',
     fuel: 'Diesel',
